@@ -41,6 +41,7 @@ int main() {
 
 /// добавить проверку и в мануал запрет на использование - / |
 /// обновление лимитов
+/// выдавать ТОТАЛ при обновлении остатка
 /// отображение всей задолженности с отдельной кнопки (нужно беречь нервы)
 /// глюки при удалении (///////)
 /// СДЕЛАТЬ как в заметке - заданный лимит на день до 1 числа, с показом остатка
@@ -68,7 +69,7 @@ int main() {
     string events[m];
     string remainds[m];
 
-    struct tm a = { 0,0,0,day,month - 1,101,0,0,0 }; // текущая дата
+    struct tm a = { 0,0,0,day,month-1,101,0,0,0 }; // текущая дата
     time_t x = mktime(&a); // 
     // struct tm b = { 0,0,0,0,credordebt,101,0,0,0 }; // ожидаемая дата
     // time_t y = mktime(&b); // 
@@ -136,9 +137,10 @@ int main() {
         cout << "\n\n   TOTAL = " << total << ". ";
     struct tm c = { 0,0,0,0, month ,101,0,0,0 }; // пересчёт на дни
     time_t summer = mktime(&c);
-    if (x != (time_t)(-1) && summer != (time_t)(-1))
-    cout << floor(total/(difftime(summer, x)/(60 * 60 * 24)))
-     << " ru./day.\n\n\n";
+    if (x != (time_t)(-1) && summer != (time_t)(-1) && summer != x)
+    cout << floor(total/(difftime(summer, x)/(60 * 60 * 24))) << " ru./day.\n\n\n";
+    if (x != (time_t)(-1) && summer != (time_t)(-1) && summer == x) 
+    cout << total << " ru./day.\n\n\n";
     }
 
     
@@ -341,24 +343,23 @@ int main() {
 // ПЕРЕСЧЁТ НА КОЛ-ВО ДНЕЙ ИСХОДЯ ИЗ ЗАДАННОГО ЛИМИТА (функция "Limit on day")
     else if (j > 0 && question == 5)
     {
-    cout << " --------------------------------------------------------------------\n";
-    cout << "                    Limit on day in development.\n";
-    cout << " --------------------------------------------------------------------\n\n";
-    //     int quest{};
-    //     int answ{};
-    //     cout << " Enter limit on day\n";
-    //     cin >> quest;
-    //     answ = floor(total/quest);
-    // //   cout << "->>";
-    // //   nowData(wday, answ, month, year);
-    // struct tm c = { 0,0,wday, day, month, year,0,0,0 };
-    // time_t y = mktime(&c);
-    // if (x != (time_t)(-1) && y != (time_t)(-1))
-    // cout << "   " << answ << " - " << difftime(y, x)/(60 * 60 * 24);
+    // cout << " --------------------------------------------------------------------\n";
+    // cout << "                    Limit on day in development.\n";
+    // cout << " --------------------------------------------------------------------\n\n";
+        int quest{};
+        int answ{};
+        cout << " Enter limit on day\n";
+        cin >> quest;
+        answ = floor(total/quest);
+    //   cout << "->>";
+    //   nowData(wday, answ, month, year);
+    struct tm b = { 0,0,0,answ,month,101,0,0,0 }; // ожидаемая дата
+    time_t y = mktime(&b);
+    if (x != (time_t)(-1) && y != (time_t)(-1))
+    cout << "  The money is enough for " << difftime(y, x)/(60 * 60 * 24) << " days.\n\n";
     }
 
     cout << "To continue, press any letter. To exit, press \"Q\"\n\n";
-    // if (i>0) 
     cin >> quit;
 }
 }
