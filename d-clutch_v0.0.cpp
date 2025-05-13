@@ -20,6 +20,9 @@ using namespace std;
 namespace fs = std::filesystem;
 
 void nowData(int w, int d, int m, int y);
+void nowData(int d, int m, int y);
+void functions(int j, int const m);
+void totally(int total, int month, time_t x);
 void autorun(int tog);
 void manual();
 
@@ -39,15 +42,17 @@ int main() {
 
     cout << "\n ---     d-clutch     ---\n";
 
-/// добавить проверку и в мануал запрет на использование - / |
-/// обновление лимитов
-/// выдавать ТОТАЛ при обновлении остатка
-/// отображение всей задолженности с отдельной кнопки (нужно беречь нервы)
-/// глюки при удалении (///////)
-/// СДЕЛАТЬ как в заметке - заданный лимит на день до 1 числа, с показом остатка
-/// залить на Гитхаб
+/// 1. добавить проверку и в мануал запрет на использование - / |
+/// 2. глюки при удалении (///////)
+/// 3. залить на Гитхаб
+/// 4. сделать мануал и Readme
+/// 5. обновление лимитов
+/// 6. отображение всей задолженности с отдельной кнопки (нужно беречь нервы)
+/// 7. сохрань в d-clutch_data.txt каждый ввод (не стирая старое). Для документирования
+/// 8. СДЕЛАТЬ как в заметке - заданный лимит на день до 1 числа, с показом остатка
+/// 9. кнопка Limit on day. При повторном вводе дублирует значение месяца
 
-//// остановился на: кнопка Limit on day (стр 341)
+//// остановился на: 
 
     time_t now = time(0); // текущая дата/время, основанные на текущей системе <ctime>
     struct tm* ltm = localtime(&now);
@@ -57,15 +62,16 @@ int main() {
     day = ltm->tm_mday;
     wday = ltm->tm_wday;
 
-    int const m = 99; // переменные там всякие
     int const n = 321; // просто здоровое число для счётчиков
+    int const m = 99; // переменные там всякие
     int question = 123; // 0 занят
     int remaind = 0;
     int limit = 0;
+    // int limitOnDay = 0;
     int total = 0;
     int j = 0;
     char credordebt;
-    char quit = ' ';
+    char quit = '_';
     string events[m];
     string remainds[m];
 
@@ -79,7 +85,8 @@ int main() {
     char re[MAX_PATH];
     string FP = string(re, GetModuleFileNameA(NULL, re, MAX_PATH));
 
-    //   cout << "\n17:53\n";
+    //   cout << "\n15:30\n";
+    //    << "day-" << day << ". month-" << month << "\n";
 
 
 // ОТКРЫВАЕТ СОХРАНЕННЫЕ СОБЫТИЯ
@@ -128,20 +135,8 @@ int main() {
     }
 
     for (int i=1; i<=j; i++) // подсчёт общего остатка
-    {
-        // cout << " >" << remainds[i] << "< ";
-        total += atoi(remainds[i].c_str());
-    }
-    if (j > 0)
-    {
-        cout << "\n\n   TOTAL = " << total << ". ";
-    struct tm c = { 0,0,0,0, month ,101,0,0,0 }; // пересчёт на дни
-    time_t summer = mktime(&c);
-    if (x != (time_t)(-1) && summer != (time_t)(-1) && summer != x)
-    cout << floor(total/(difftime(summer, x)/(60 * 60 * 24))) << " ru./day.\n\n\n";
-    if (x != (time_t)(-1) && summer != (time_t)(-1) && summer == x) 
-    cout << total << " ru./day.\n\n\n";
-    }
+    total += atoi(remainds[i].c_str());
+    if (j > 0) totally(total, month, x);
 
     
 // ИНДЕКСАЦИЯ СОБЫТИЙ
@@ -170,34 +165,24 @@ int main() {
     
 
 // ОТОБРАЖЕНИЕ СЕРВИСНЫХ ФУНКЦИЙ
-    {
-                    cout << "     Manual   (press 0)\n";
-                    cout << "     Update data    (1)\n";
-         if (j < m) cout << "     Add source     (2)\n";
-         if (j > 0) cout << "     Delete source  (3)\n";
-         if (j > 0) cout << "     On next montn  (4)\n";
-         if (j > 0) cout << "     Limit on day   (5)\n";
-    LONG check = RegGetValueA(HKEY_CURRENT_USER, 
-        "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", "d-clutch", 
-            RRF_RT_REG_SZ, 0, 0, 0);
-    if (check == 0) cout << "     Delete autorun (8)\n";
-    if (check == 2) cout << "     Autorun        (9)\n";
-    }
+    functions(j, m);
 
 
 // ЦИКЛ ВВОДА ДАННЫХ
-    for (int i{}; i<5; i++)
+    for (int i{}; i<23; i++)
     {
         if (quit == 'q' || quit == 'Q') break;
         else if (quit != 'q' || quit != 'Q')
         {
 
+
 // ВВОД КОМАНДЫ
-    cin >> question;
+    if (atoi(&quit) >= 0 && atoi(&quit) <= 9) question = atoi(&quit);
+    else if (atoi(&quit) < 0 && atoi(&quit) > 9 && i==0) cin >> question;
 
         
 // ИНСТРУКЦИЯ
-    if (question == 0) manual();
+    if (i>0 && question == 0) manual();
         
 
 // ОБНОВЛЕНИЕ ДАННЫХ
@@ -230,13 +215,22 @@ int main() {
             }
         }
         ofstream file5(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::out);
+
         for (int i=0; i<o-1; i++)
         {
-            // добавить колличество дней до 1 числа следующего месяца
-            buff[i] += " ";
-            file5 << buff[i];
+            if (i == 0) file5 << day << " " << month << " " << year << "  ";
+            if (i > 0)
+            {
+                buff[i] += " ";
+                file5 << buff[i];
+            }
         }
         file5.close();
+
+        total = 0;
+        for (int i=1; i<=j; i++) // подсчёт общего остатка
+        total += newData[i];
+        if (j > 0) totally(total, month, x);
     }
 
 
@@ -282,7 +276,7 @@ int main() {
 // УДАЛЕНИЕ
     else if (j > 0 && question == 3)
     {
-    cout << " To delete a resource:\n";
+    cout << "  To delete a resource:\n";
     for (int i=1; i<=j; i++)
      cout << " " << events[i] << " (press " << i << ")" << "\n";
 
@@ -331,7 +325,7 @@ int main() {
 // ПЕРЕСЧЁТ ДО 1-ГО ЧИСЛА СЛЕД. МЕСЯЦА (функция "On next montn")
     else if (j > 0 && question == 4)
     {
-    cout << "\n\n   On next montn - ";
+    cout << "\n\n  On next montn - ";
     struct tm c = { 0,0,0,0, month+1 ,101,0,0,0 }; // пересчёт на дни
     time_t y = mktime(&c);
     if (x != (time_t)(-1) && y != (time_t)(-1))
@@ -348,7 +342,7 @@ int main() {
     // cout << " --------------------------------------------------------------------\n\n";
         int quest{};
         int answ{};
-        cout << " Enter limit on day\n";
+        cout << "  Enter limit on day\n";
         cin >> quest;
         answ = floor(total/quest);
     //   cout << "->>";
@@ -359,7 +353,13 @@ int main() {
     cout << "  The money is enough for " << difftime(y, x)/(60 * 60 * 24) << " days.\n\n";
     }
 
-    cout << "To continue, press any letter. To exit, press \"Q\"\n\n";
+
+// ПОВТОРНОЕ ОТОБРАЖЕНИЕ СЕРВИСНЫХ ФУНКЦИЙ
+    if (i>0)
+    {
+        functions(j, m);
+        cout << "     To exit, press (Q)\n\n";
+    }
     cin >> quit;
 }
 }
@@ -385,6 +385,38 @@ void nowData(int w, int d, int m, int y) // отображение текуще�
     case 7: cout << "sun"; break;
     }
     cout << "." << d << "." << m << "." << y << ". -" << endl;
+}
+
+void nowData(int d, int m, int y) // отображение текущей даты (без дня недели)
+{
+    cout << "\n - Today ";
+    cout << "." << d << "." << m << "." << y << ". -" << endl;
+}
+
+void functions(int j, int const m)
+    {
+                    cout << "     Manual   (press 0)\n";
+                    cout << "     Update data    (1)\n";
+         if (j < m) cout << "     Add source     (2)\n";
+         if (j > 0) cout << "     Delete source  (3)\n";
+         if (j > 0) cout << "     On next montn  (4)\n";
+         if (j > 0) cout << "     Limit on day   (5)\n";
+    LONG check = RegGetValueA(HKEY_CURRENT_USER, 
+        "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", "d-clutch", 
+            RRF_RT_REG_SZ, 0, 0, 0);
+    if (check == 0) cout << "     Delete autorun (8)\n";
+    if (check == 2) cout << "     Autorun        (9)\n";
+    }
+
+void totally(int total, int month, time_t x)
+{
+    cout << "\n\n  TOTAL = " << total << ". ";
+    struct tm c = { 0,0,0,0, month ,101,0,0,0 }; // пересчёт на дни
+    time_t summer = mktime(&c);
+    if (x != (time_t)(-1) && summer != (time_t)(-1) && summer != x)
+    cout << floor(total/(difftime(summer, x)/(60 * 60 * 24))) << " ru./day.\n\n\n";
+    if (x != (time_t)(-1) && summer != (time_t)(-1) && summer == x) 
+    cout << total << " ru./day.\n\n\n";
 }
 
 void autorun(int tog)
