@@ -50,9 +50,9 @@ int main() {
 /// 6. отображение всей задолженности с отдельной кнопки (нужно беречь нервы)
 /// 7. сохрань в d-clutch_data.txt каждый ввод (не стирая старое). Для документирования
 /// 8. СДЕЛАТЬ как в заметке - заданный лимит на день до 1 числа, с показом остатка
-/// 9. кнопка Limit on day. При повторном вводе дублирует значение месяца
+/// 9. кнопка Limit on day. При повторном вводе дублирует 3 знака в конце
 
-//// остановился на: 
+//// остановился на: При повторном вводе дублирует 3 знака в конце (пытался чинить стр 215)
 
     time_t now = time(0); // текущая дата/время, основанные на текущей системе <ctime>
     struct tm* ltm = localtime(&now);
@@ -189,22 +189,31 @@ int main() {
     else if (j > 0 && question == 1)
     {
         int newData[m];
+        string buff[m];
+        string buf{};
         for (int i=1; i<=j; i++)
         {
             cout << events[i] << " = ";
             cin >> newData[i];
             cout << "\n";
         }
-        string buff[m];
-        string buf{};
-        int o = 0;
+        buff[0] = "  Date " + to_string(day) + " " + to_string(month)
+         + " " + to_string(year) + "  -  " + to_string(total) + " ru\n";
         ifstream file4(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::in);
-        for (int i = 0; file4; i++)
+        int o = 0;
+        bool flag = false;
+        for (int i = 1; file4; i++)
         {
             file4 >> buf;
-            buff[i] = buf;
+            if (flag == true) buff[i-3] = buf;
+            if (buf == "|" && flag == false)
+            {
+                buff[i-3] = buf;
+                flag = true;
+            }
             o++;
         }
+
         file4.close();
         for (int i=0, l=1; i<o; i++)
         {
@@ -216,14 +225,10 @@ int main() {
         }
         ofstream file5(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::out);
 
-        for (int i=0; i<o-1; i++)
+        for (int i=0; i<o-3; i++)
         {
-            if (i == 0) file5 << day << " " << month << " " << year << "  ";
-            if (i > 0)
-            {
                 buff[i] += " ";
                 file5 << buff[i];
-            }
         }
         file5.close();
 
