@@ -50,7 +50,6 @@ int main() {
 /// 6. отображение всей задолженности с отдельной кнопки (нужно беречь нервы)
 /// 7. сохрань в d-clutch_data.txt каждый ввод (не стирая старое). Для документирования
 /// 8. СДЕЛАТЬ как в заметке - заданный лимит на день до 1 числа, с показом остатка
-/// 9. кнопка Limit on day. При повторном вводе дублирует 3 знака в конце
 
 //// остановился на: При повторном вводе дублирует 3 знака в конце (пытался чинить стр 215)
 
@@ -85,9 +84,7 @@ int main() {
     char re[MAX_PATH];
     string FP = string(re, GetModuleFileNameA(NULL, re, MAX_PATH));
 
-    //   cout << "\n15:30\n";
-    //    << "day-" << day << ". month-" << month << "\n";
-
+    //   cout << "\n15:30\n"; // для тестов
 
 // ОТКРЫВАЕТ СОХРАНЕННЫЕ СОБЫТИЯ
     ifstream file1;
@@ -339,23 +336,29 @@ int main() {
     }
 
 
-// ПЕРЕСЧЁТ НА КОЛ-ВО ДНЕЙ ИСХОДЯ ИЗ ЗАДАННОГО ЛИМИТА (функция "Limit on day")
+// ПЕРЕСЧЁТ НА КОЛ-ВО ДНЕЙ ИСХОДЯ ИЗ ЗАДАННОГО ЛИМИТА (функция "Balance at the limit")
     else if (j > 0 && question == 5)
     {
-    // cout << " --------------------------------------------------------------------\n";
-    // cout << "                    Limit on day in development.\n";
-    // cout << " --------------------------------------------------------------------\n\n";
-        int quest{};
+        int quest{500};
         int answ{};
-        cout << "  Enter limit on day\n";
-        cin >> quest;
-        answ = floor(total/quest);
-    //   cout << "->>";
-    //   nowData(wday, answ, month, year);
-    struct tm b = { 0,0,0,answ,month,101,0,0,0 }; // ожидаемая дата
-    time_t y = mktime(&b);
-    if (x != (time_t)(-1) && y != (time_t)(-1))
-    cout << "  The money is enough for " << difftime(y, x)/(60 * 60 * 24) << " days.\n\n";
+        // cout << "  Enter limit on day\n";
+        // cin >> quest;
+        cout << "  Limit on day = 500\n";
+        
+        string buff[m];
+        ifstream file6(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::in);
+        for (int i{}; i<4; i++) file6 >> buff[i];
+        file6.close();
+
+        struct tm a = { 0,0,0,stoi(buff[1]),stoi(buff[2])-1,101,0,0,0 }; // дата посл.ввода
+        time_t x = mktime(&a);
+        struct tm b = { 0,0,0,0,month,101,0,0,0 }; // ожидаемая дата
+        time_t y = mktime(&b);
+
+        if (x != (time_t)(-1) && y != (time_t)(-1))
+        answ = total - (difftime(y, x)/(60 * 60 * 24)) * quest;
+        cout << "  The balance at the end of the month (limit "
+         << quest << " ru) = " << answ << " ru.\n\n";
     }
 
 
@@ -400,17 +403,17 @@ void nowData(int d, int m, int y) // отображение текущей да�
 
 void functions(int j, int const m)
     {
-                    cout << "     Manual   (press 0)\n";
-                    cout << "     Update data    (1)\n";
-         if (j < m) cout << "     Add source     (2)\n";
-         if (j > 0) cout << "     Delete source  (3)\n";
-         if (j > 0) cout << "     On next montn  (4)\n";
-         if (j > 0) cout << "     Limit on day   (5)\n";
+                    cout << "     Manual     (press 0)\n";
+                    cout << "     Update data      (1)\n";
+         if (j < m) cout << "     Add source       (2)\n";
+         if (j > 0) cout << "     Delete source    (3)\n";
+         if (j > 0) cout << "     On next montn    (4)\n";
+         if (j > 0) cout << "     Balance at limit (5)\n";
     LONG check = RegGetValueA(HKEY_CURRENT_USER, 
         "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", "d-clutch", 
             RRF_RT_REG_SZ, 0, 0, 0);
-    if (check == 0) cout << "     Delete autorun (8)\n";
-    if (check == 2) cout << "     Autorun        (9)\n";
+    if (check == 0) cout << "     Delete autorun   (8)\n";
+    if (check == 2) cout << "     Autorun          (9)\n";
     }
 
 void totally(int total, int month, time_t x)
