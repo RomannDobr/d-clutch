@@ -22,7 +22,7 @@ namespace fs = std::filesystem;
 void nowData(int w, int d, int m, int y);
 void nowData(int d, int m, int y);
 void functions(int j, int const m);
-void totally(int total, int month, time_t x);
+void totally(int total, int month, string FP);
 void autorun(int tog);
 void manual();
 
@@ -42,16 +42,16 @@ int main() {
 
     cout << "\n ---     d-clutch     ---\n";
 
-/// 1. добавить проверку и в мануал запрет на использование - / |
+/// 1. добавить проверку и в мануал запрет на использование ; - / |
 /// 2. глюки при удалении (///////)
 /// 3. залить на Гитхаб
 /// 4. сделать мануал и Readme
 /// 5. обновление лимитов
 /// 6. отображение всей задолженности с отдельной кнопки (нужно беречь нервы)
-/// 7. сохрань в d-clutch_data.txt каждый ввод (не стирая старое). Для документирования
-/// 8. СДЕЛАТЬ как в заметке - заданный лимит на день до 1 числа, с показом остатка
+/// 7. сравнение предыдущего и последнего ввода исходя из лимита (овердрафт/экономия)
+/// 8. сохрань в d-clutch_data.txt каждый ввод (не стирая старое)
 
-//// остановился на: При повторном вводе дублирует 3 знака в конце (пытался чинить стр 215)
+//// остановился на: пункте 8, не отображаются функции после обновления данных
 
     time_t now = time(0); // текущая дата/время, основанные на текущей системе <ctime>
     struct tm* ltm = localtime(&now);
@@ -61,7 +61,7 @@ int main() {
     day = ltm->tm_mday;
     wday = ltm->tm_wday;
 
-    int const n = 321; // просто здоровое число для счётчиков
+    int const n = 3210; // просто здоровое число для счётчиков
     int const m = 99; // переменные там всякие
     int question = 123; // 0 занят
     int remaind = 0;
@@ -101,7 +101,7 @@ int main() {
                 j++;
                 a++;
             }
-            if (a > 1) break;
+            if (a > 1 || buf == ';') break;
         }
         file1.close();
         cout << "\n";
@@ -126,14 +126,14 @@ int main() {
                 cout << " " << buffer0 << "-" << remainds[k] << "." << endl;
             }
             if (buffer0 == "/") k--;
-            if (k < 0 || buffer0 == "") break;
+            if (k < 0 || buffer0 == "" || buffer0 == ";") break;
         }
         file2.close();
     }
 
     for (int i=1; i<=j; i++) // подсчёт общего остатка
     total += atoi(remainds[i].c_str());
-    if (j > 0) totally(total, month, x);
+    if (j > 0) totally(total, month, FP);
 
     
 // ИНДЕКСАЦИЯ СОБЫТИЙ
@@ -186,16 +186,21 @@ int main() {
     else if (j > 0 && question == 1)
     {
         int newData[m];
-        string buff[m];
+        string buff0[m];
+        string buff[n];
+        string buffer[n];
         string buf{};
-        for (int i=1; i<=j; i++)
+        for (int i=1; i<=j; i++) // ввод новых данных о балансах
         {
             cout << events[i] << " = ";
             cin >> newData[i];
             cout << "\n";
         }
-        buff[0] = "  Date " + to_string(day) + " " + to_string(month)
-         + " " + to_string(year) + "  -  " + to_string(total) + " ru\n";
+        // добавление заголовка о дате и тотале в buff
+        buff[0] = "Date " + to_string(day) + " " + to_string(month)
+         + " " + to_string(year) + "  -  " + to_string(total) + " ru";
+        
+         // добавление остальной информации в buff (до знака ;)
         ifstream file4(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::in);
         int o = 0;
         bool flag = false;
@@ -203,16 +208,17 @@ int main() {
         {
             file4 >> buf;
             if (flag == true) buff[i-3] = buf;
-            if (buf == "|" && flag == false)
+            else if (buf == "|" && flag == false)
             {
                 buff[i-3] = buf;
                 flag = true;
             }
             o++;
+            if (buf == ";") break;
         }
-
         file4.close();
-        for (int i=0, l=1; i<o; i++)
+
+        for (int i=0, l=1; i<o; i++) // замена в buff старых на новые значения балансов
         {
             if (buff[i] == "-")
             {
@@ -220,19 +226,82 @@ int main() {
                 l++;
             }
         }
-        ofstream file5(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::out);
 
-        for (int i=0; i<o-3; i++)
-        {
-                buff[i] += " ";
-                file5 << buff[i];
-        }
+        // считывание даты в buff0
+        ifstream file5(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::in);
+        for (int i{}; i<4; i++) file5 >> buff0[i];
         file5.close();
 
+        // если обновление данных происходило сегодня, то файл ПЕРЕписывается
+        if (day == stoi(buff0[1]) && month == stoi(buff0[2]) && year == stoi(buff0[3]))
+        {
+        // считывание старых данных из файла
+        ifstream file06(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::in);
+        for (int i = 0; file06; i++)
+        {
+            file06 >> buffer[i];
+            buffer[i] += " ";
+        }
+        file06.close();
+        // замена новыми данными
+        ofstream file6(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::out);
+        for (int i=0; i<o-3; i++)
+        {
+            buff[i] += " ";
+            file6 << buff[i];
+        }
+        file6 << ";\n\n";
+        file6.close();
+        
         total = 0;
         for (int i=1; i<=j; i++) // подсчёт общего остатка
         total += newData[i];
-        if (j > 0) totally(total, month, x);
+        if (j > 0) totally(total, month, FP);
+        // добавление старых данных
+        ofstream file60(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::app);
+        for (int i = 0; n; i++)
+        {
+            file60 << buffer[i];
+            // buffer[i] += " ";
+            if (buffer[i] == ";") file60 << buffer[i] << " \n\n";
+        }
+        file60.close();
+        }
+        else // если обновление данных происходило НЕ сегодня, то файл ДОписывается
+        {
+        // считывание старых данных из файла
+        ifstream file07(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::in);
+        for (int i = 0; file07; i++)
+        {
+            file07 >> buffer[i];
+            buffer[i] += " ";
+        }
+        file07.close();
+        // замена новыми данными
+           ofstream file7(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::out);
+    
+            for (int i=0; i<o-3; i++)
+            {
+                    buff[i] += " ";
+                    file7 << buff[i];
+            }
+            file7 << ";\n\n";
+            file7.close();
+    
+            total = 0;
+            for (int i=1; i<=j; i++) // подсчёт общего остатка
+            total += newData[i];
+            if (j > 0) totally(total, month, FP);
+        // добавление старых данных
+        ofstream file70(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::app);
+        for (int i = 0; n; i++)
+        {
+            file70 << buffer[i];
+            buffer[i] += " ";
+            if (buffer[i] == ";") file70 << buffer[i] << " \n\n";
+        }
+        file70.close();
+        }
     }
 
 
@@ -250,7 +319,8 @@ int main() {
         }
 
         ofstream name(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::app);
-        name << " | " << message << " - ";
+        name << "Date " + to_string(day) + " " + to_string(month) + " " + to_string(year)
+         + "  -  " + to_string(total) + " ru\n | " << message << " - ";
         name.close();
 
         cout << "  Enter the remainder\n";
@@ -270,6 +340,7 @@ int main() {
             }
             ofstream name4(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::app);
             name4 << limit << " /";
+            name4 << ";\n\n";
             name4.close();
         }
     }
@@ -291,7 +362,7 @@ int main() {
         char buf{};
         int o = 0;
         ifstream delfile(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::in);
-        for (int i = 0; delfile; i++)
+        for (int i=0; delfile; i++)
         {
             delfile.get(buf);
             buff[i] = buf;
@@ -328,8 +399,10 @@ int main() {
     else if (j > 0 && question == 4)
     {
     cout << "\n\n  On next montn - ";
+
     struct tm c = { 0,0,0,0, month+1 ,101,0,0,0 }; // пересчёт на дни
     time_t y = mktime(&c);
+    
     if (x != (time_t)(-1) && y != (time_t)(-1))
     cout << floor(total/(difftime(y, x)/(60 * 60 * 24)))
      << " ru./day.\n\n\n";
@@ -341,14 +414,14 @@ int main() {
     {
         int quest{500};
         int answ{};
-        // cout << "  Enter limit on day\n";
-        // cin >> quest;
-        cout << "  Limit on day = 500\n";
+        // cout << "  Enter limit on day\n"; // для ввода лимита
+        // cin >> quest;                     // для ввода лимита
+        cout << "  Limit on day = 500\n";    // при заранее заданом лимите
         
         string buff[m];
-        ifstream file6(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::in);
-        for (int i{}; i<4; i++) file6 >> buff[i];
-        file6.close();
+        ifstream file8(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::in);
+        for (int i{}; i<4; i++) file8 >> buff[i];
+        file8.close();
 
         struct tm a = { 0,0,0,stoi(buff[1]),stoi(buff[2])-1,101,0,0,0 }; // дата посл.ввода
         time_t x = mktime(&a);
@@ -366,7 +439,7 @@ int main() {
     if (i>0)
     {
         functions(j, m);
-        cout << "     To exit, press (Q)\n\n";
+        cout << "     To exit, press   (Q)\n\n";
     }
     cin >> quit;
 }
@@ -404,7 +477,7 @@ void nowData(int d, int m, int y) // отображение текущей да�
 void functions(int j, int const m)
     {
                     cout << "     Manual     (press 0)\n";
-                    cout << "     Update data      (1)\n";
+         if (j > 0) cout << "     Update data      (1)\n";
          if (j < m) cout << "     Add source       (2)\n";
          if (j > 0) cout << "     Delete source    (3)\n";
          if (j > 0) cout << "     On next montn    (4)\n";
@@ -416,11 +489,21 @@ void functions(int j, int const m)
     if (check == 2) cout << "     Autorun          (9)\n";
     }
 
-void totally(int total, int month, time_t x)
+void totally(int total, int month, string FP)
 {
-    cout << "\n\n  TOTAL = " << total << ". ";
+    string buff[4];
+    ifstream file9(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::in);
+    for (int i{}; i<4; i++) file9 >> buff[i];
+    file9.close();
+
+    cout << "\n\n  TOTAL on " << buff[1] << "." << buff[2] << "." << buff[3]
+     << " = " << total << ". ";
+
+    struct tm a = { 0,0,0,stoi(buff[1]),stoi(buff[2])-1,101,0,0,0 }; // дата посл.ввода
+    time_t x = mktime(&a);
     struct tm c = { 0,0,0,0, month ,101,0,0,0 }; // пересчёт на дни
     time_t summer = mktime(&c);
+
     if (x != (time_t)(-1) && summer != (time_t)(-1) && summer != x)
     cout << floor(total/(difftime(summer, x)/(60 * 60 * 24))) << " ru./day.\n\n\n";
     if (x != (time_t)(-1) && summer != (time_t)(-1) && summer == x) 
