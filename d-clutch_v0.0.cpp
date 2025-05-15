@@ -51,7 +51,7 @@ int main() {
 /// 7. сравнение предыдущего и последнего ввода исходя из лимита (овердрафт/экономия)
 /// 8. сохрань в d-clutch_data.txt каждый ввод (не стирая старое)
 
-//// остановился на: пункте 8, не отображаются функции после обновления данных
+//// остановился на: пункте 8, не отображаются функции после обновления данных (стр 263)
 
     time_t now = time(0); // текущая дата/время, основанные на текущей системе <ctime>
     struct tm* ltm = localtime(&now);
@@ -183,7 +183,7 @@ int main() {
         
 
 // ОБНОВЛЕНИЕ ДАННЫХ
-    else if (j > 0 && question == 1)
+    else if (j>0 && question == 1)
     {
         int newData[m];
         string buff0[m];
@@ -235,12 +235,14 @@ int main() {
         // если обновление данных происходило сегодня, то файл ПЕРЕписывается
         if (day == stoi(buff0[1]) && month == stoi(buff0[2]) && year == stoi(buff0[3]))
         {
+        int k{};
         // считывание старых данных из файла
         ifstream file06(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::in);
         for (int i = 0; file06; i++)
         {
             file06 >> buffer[i];
             buffer[i] += " ";
+            k++;
         }
         file06.close();
         // замена новыми данными
@@ -258,23 +260,26 @@ int main() {
         total += newData[i];
         if (j > 0) totally(total, month, FP);
         // добавление старых данных
-        ofstream file60(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::app);
-        for (int i = 0; n; i++)
+        ofstream file6B(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::app);
+        for (int i = 0; k; i++)
         {
-            file60 << buffer[i];
+            // if (buffer[i] == ";") file6B << " ;\n\n";
+            file6B << buffer[i];
             // buffer[i] += " ";
-            if (buffer[i] == ";") file60 << buffer[i] << " \n\n";
         }
-        file60.close();
+        file6B.close();
         }
+
         else // если обновление данных происходило НЕ сегодня, то файл ДОписывается
         {
+        int k{};
         // считывание старых данных из файла
         ifstream file07(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::in);
         for (int i = 0; file07; i++)
         {
             file07 >> buffer[i];
             buffer[i] += " ";
+            k++;
         }
         file07.close();
         // замена новыми данными
@@ -292,15 +297,15 @@ int main() {
             for (int i=1; i<=j; i++) // подсчёт общего остатка
             total += newData[i];
             if (j > 0) totally(total, month, FP);
-        // добавление старых данных
-        ofstream file70(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::app);
-        for (int i = 0; n; i++)
-        {
-            file70 << buffer[i];
-            buffer[i] += " ";
-            if (buffer[i] == ";") file70 << buffer[i] << " \n\n";
-        }
-        file70.close();
+        // // добавление старых данных
+        // ofstream file70(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::app);
+        // for (int i = 0; k; i++)
+        // {
+        //     if (buffer[i] == ";") file70 << " ;\n\n";
+        //     file70 << buffer[i];
+        //     buffer[i] += " ";
+        // }
+        // file70.close();
         }
     }
 
