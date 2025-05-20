@@ -45,13 +45,12 @@ int main() {
 /// 1. добавить проверку и в мануал запрет на использование ; - / |
 /// 2. глюки при удалении (///////)
 /// 3. залить на Гитхаб
-/// 4. сделать мануал и Readme
+/// 4. сделать мануал и Readme / проверить все функции
 /// 5. обновление лимитов
 /// 6. отображение всей задолженности с отдельной кнопки (нужно беречь нервы)
 /// 7. сравнение предыдущего и последнего ввода исходя из лимита (овердрафт/экономия)
-/// 8. сохрань в d-clutch_data.txt каждый ввод (не стирая старое)
 
-//// остановился на: пункте 8, не отображаются функции после обновления данных (стр 263)
+//// остановился на: 7. сравнение предыдущего и последнего ввода (овердрафт/экономия)
 
     time_t now = time(0); // текущая дата/время, основанные на текущей системе <ctime>
     struct tm* ltm = localtime(&now);
@@ -217,7 +216,7 @@ int main() {
             if (buf == ";") break;
         }
         file4.close();
-
+        
         for (int i=0, l=1; i<o; i++) // замена в buff старых на новые значения балансов
         {
             if (buff[i] == "-")
@@ -226,24 +225,24 @@ int main() {
                 l++;
             }
         }
-
+        
         // считывание даты в buff0
         ifstream file5(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::in);
         for (int i{}; i<4; i++) file5 >> buff0[i];
         file5.close();
-
+        
         // если обновление данных происходило сегодня, то файл ПЕРЕписывается
         if (day == stoi(buff0[1]) && month == stoi(buff0[2]) && year == stoi(buff0[3]))
         {
-        int k{};
-        // считывание старых данных из файла
-        ifstream file06(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::in);
-        for (int i = 0; file06; i++)
-        {
-            file06 >> buffer[i];
-            buffer[i] += " ";
-            k++;
-        }
+            int k{};
+            // считывание старых данных из файла
+            ifstream file06(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::in);
+            for (int i = 0; file06; i++)
+            {
+                file06 >> buffer[i];
+                buffer[i] += " ";
+                k++;
+            }
         file06.close();
         // замена новыми данными
         ofstream file6(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::out);
@@ -253,21 +252,19 @@ int main() {
             file6 << buff[i];
         }
         file6 << ";\n\n";
+        // добавление старых данных
+        for (int i=0; i<k+o; i++)
+        {
+            file6 << buffer[i+o];
+            if (buffer[i+o] == "; ") file6 << "\n\n";
+        }
         file6.close();
-        
+
+        // подсчёт общего остатка
         total = 0;
-        for (int i=1; i<=j; i++) // подсчёт общего остатка
+        for (int i=1; i<=j; i++)
         total += newData[i];
         if (j > 0) totally(total, month, FP);
-        // добавление старых данных
-        ofstream file6B(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::app);
-        for (int i = 0; k; i++)
-        {
-            // if (buffer[i] == ";") file6B << " ;\n\n";
-            file6B << buffer[i];
-            // buffer[i] += " ";
-        }
-        file6B.close();
         }
 
         else // если обновление данных происходило НЕ сегодня, то файл ДОписывается
@@ -297,15 +294,14 @@ int main() {
             for (int i=1; i<=j; i++) // подсчёт общего остатка
             total += newData[i];
             if (j > 0) totally(total, month, FP);
-        // // добавление старых данных
-        // ofstream file70(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::app);
-        // for (int i = 0; k; i++)
-        // {
-        //     if (buffer[i] == ";") file70 << " ;\n\n";
-        //     file70 << buffer[i];
-        //     buffer[i] += " ";
-        // }
-        // file70.close();
+        // добавление старых данных
+        ofstream file70(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::app);
+        for (int i = 0; i<k; i++)
+        {
+            file70 << buffer[i];
+            if (buffer[i] == "; ") file70 << "\n\n";
+        }
+        file70.close();
         }
     }
 
