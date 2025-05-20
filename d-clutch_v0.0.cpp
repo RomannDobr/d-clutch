@@ -45,12 +45,12 @@ int main() {
 /// 1. добавить проверку и в мануал запрет на использование ; - / |
 /// 2. глюки при удалении (///////)
 /// 3. залить на Гитхаб
-/// 4. сделать мануал и Readme / проверить все функции
-/// 5. обновление лимитов
-/// 6. отображение всей задолженности с отдельной кнопки (нужно беречь нервы)
-/// 7. сравнение предыдущего и последнего ввода исходя из лимита (овердрафт/экономия)
+/// 4. сделать мануал и Readme
+/// 5. проверить все функции
+/// 6. обновление лимитов
+/// 7. отображение всей задолженности с отдельной кнопки (кнопка 6)
 
-//// остановился на: 7. сравнение предыдущего и последнего ввода (овердрафт/экономия)
+//// остановился на: 
 
     time_t now = time(0); // текущая дата/время, основанные на текущей системе <ctime>
     struct tm* ltm = localtime(&now);
@@ -415,24 +415,58 @@ int main() {
     {
         int quest{500};
         int answ{};
+        int diff{};
         // cout << "  Enter limit on day\n"; // для ввода лимита
         // cin >> quest;                     // для ввода лимита
         cout << "  Limit on day = 500\n";    // при заранее заданом лимите
         
-        string buff[m];
+        string buf{};
+        string buff[6];
+        string buff2[5];
+        string buffer[m];
         ifstream file8(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::in);
-        for (int i{}; i<4; i++) file8 >> buff[i];
+        for (int i{}; i<6; i++) file8 >> buff[i];
+        for (int i{}; i<m; i++) file8 >> buffer[i];
+        for (int i{}, l{}; i<m; i++)
+        {
+            if (buffer[i] == ";")
+            {
+                buff2[l] = buffer[i+2];
+                buff2[l+1] = buffer[i+3];
+                buff2[l+2] = buffer[i+4];
+                buff2[l+3] = buffer[i+6];
+                break;
+            }
+        }
+        // for (int i=1; i<6; i++) cout << buff[i] << " ";
+        // cout << "\n";
+        // for (int i{}; i<5; i++) cout << buff2[i] << " ";
+        // cout << "\n" << buff[5] << " / " << buff2[3] << "\n";
+            
         file8.close();
 
         struct tm a = { 0,0,0,stoi(buff[1]),stoi(buff[2])-1,101,0,0,0 }; // дата посл.ввода
         time_t x = mktime(&a);
         struct tm b = { 0,0,0,0,month,101,0,0,0 }; // ожидаемая дата
         time_t y = mktime(&b);
-
+        
         if (x != (time_t)(-1) && y != (time_t)(-1))
         answ = total - (difftime(y, x)/(60 * 60 * 24)) * quest;
         cout << "  The balance at the end of the month (limit "
-         << quest << " ru) = " << answ << " ru.\n\n";
+        << quest << " ru) = " << answ << " ru.\n";
+
+        a = { 0,0,0,stoi(buff2[0]),stoi(buff2[1])-1,101,0,0,0 }; // дата посл.ввода
+        x = mktime(&a);
+        b = { 0,0,0,stoi(buff[1]),stoi(buff[2])-1,101,0,0,0 }; // ожидаемая дата
+        y = mktime(&b);
+
+        if (x != (time_t)(-1) && y != (time_t)(-1))
+        diff = (stoi(buff2[3]) - stoi(buff[5])) - ((difftime(y, x)/(60 * 60 * 24)) * quest);
+        if (diff > 0) cout << "  Overdraft from " << stoi(buff2[0]) << "."
+         << stoi(buff2[1])<< "." << stoi(buff2[2]) << " = " << diff << " ru.\n\n";
+        else if (diff < 0) cout << "  Economy from " << stoi(buff2[0]) << "."
+         << stoi(buff2[1])<< "." << stoi(buff2[2]) << " = " << abs(diff) << " ru.\n\n";
+        else cout << "  Expenses meet the limit.\n\n";
     }
 
 
