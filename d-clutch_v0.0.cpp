@@ -45,12 +45,13 @@ int main() {
 /// 1. добавить проверку и в мануал запрет на использование ; - / |
 /// 2. глюки при удалении (///////)
 /// 3. залить на Гитхаб
-/// 4. сделать мануал и Readme
+/// 4. сделать мануал и Readme. С переводом всех функций.
+   // сделать чтобы он создавался при нажатии на 0 и указывал путь до текстовика
+   // при первом запуске (при отсутствии данных) выделить и написать с переводом
 /// 5. проверить все функции
 /// 6. обновление лимитов
-/// 7. отображение всей задолженности с отдельной кнопки (кнопка 6)
 
-//// остановился на: 
+//// остановился на: 6. обновление лимитов (Update card limit)
 
     time_t now = time(0); // текущая дата/время, основанные на текущей системе <ctime>
     struct tm* ltm = localtime(&now);
@@ -352,7 +353,7 @@ int main() {
     {
     cout << "  To delete a resource:\n";
     for (int i=1; i<=j; i++)
-     cout << " " << events[i] << " (press " << i << ")" << "\n";
+     cout << "  " << events[i] << "  (press " << i << ")" << "\n";
 
     int quest{};
     cin >> quest;
@@ -418,7 +419,7 @@ int main() {
         int diff{};
         // cout << "  Enter limit on day\n"; // для ввода лимита
         // cin >> quest;                     // для ввода лимита
-        cout << "  Limit on day = 500\n";    // при заранее заданом лимите
+        cout << "  Limit on day = 500\n\n";    // при заранее заданом лимите
         
         string buf{};
         string buff[6];
@@ -438,11 +439,6 @@ int main() {
                 break;
             }
         }
-        // for (int i=1; i<6; i++) cout << buff[i] << " ";
-        // cout << "\n";
-        // for (int i{}; i<5; i++) cout << buff2[i] << " ";
-        // cout << "\n" << buff[5] << " / " << buff2[3] << "\n";
-            
         file8.close();
 
         struct tm a = { 0,0,0,stoi(buff[1]),stoi(buff[2])-1,101,0,0,0 }; // дата посл.ввода
@@ -453,20 +449,88 @@ int main() {
         if (x != (time_t)(-1) && y != (time_t)(-1))
         answ = total - (difftime(y, x)/(60 * 60 * 24)) * quest;
         cout << "  The balance at the end of the month (limit "
-        << quest << " ru) = " << answ << " ru.\n";
+        << quest << " ru) = " << answ << " ru.\n\n";
 
-        a = { 0,0,0,stoi(buff2[0]),stoi(buff2[1])-1,101,0,0,0 }; // дата посл.ввода
-        x = mktime(&a);
-        b = { 0,0,0,stoi(buff[1]),stoi(buff[2])-1,101,0,0,0 }; // ожидаемая дата
-        y = mktime(&b);
+        if (buff2->empty() == 0)
+        {
+            a = { 0,0,0,stoi(buff2[0]),stoi(buff2[1])-1,101,0,0,0 }; // дата посл.ввода
+            x = mktime(&a);
+            b = { 0,0,0,stoi(buff[1]),stoi(buff[2])-1,101,0,0,0 }; // ожидаемая дата
+            y = mktime(&b);
+            
+            if (x != (time_t)(-1) && y != (time_t)(-1))
+            diff = (stoi(buff[5]) - total) - ((difftime(y, x)/(60 * 60 * 24)) * quest);
+            if (diff > 0) cout << "  Overdraft from " << stoi(buff2[0]) << "."
+            << stoi(buff2[1])<< "." << stoi(buff2[2]) << " = " << diff << " ru.\n\n";
+            else if (diff < 0) cout << "  Economy from " << stoi(buff2[0]) << "."
+            << stoi(buff2[1])<< "." << stoi(buff2[2]) << " = " << abs(diff) << " ru.\n\n";
+            else cout << "  Expenses meet the limit.\n\n";
+        }
+    }
 
-        if (x != (time_t)(-1) && y != (time_t)(-1))
-        diff = (stoi(buff2[3]) - stoi(buff[5])) - ((difftime(y, x)/(60 * 60 * 24)) * quest);
-        if (diff > 0) cout << "  Overdraft from " << stoi(buff2[0]) << "."
-         << stoi(buff2[1])<< "." << stoi(buff2[2]) << " = " << diff << " ru.\n\n";
-        else if (diff < 0) cout << "  Economy from " << stoi(buff2[0]) << "."
-         << stoi(buff2[1])<< "." << stoi(buff2[2]) << " = " << abs(diff) << " ru.\n\n";
-        else cout << "  Expenses meet the limit.\n\n";
+
+// ОТОБРАЖЕНИЕ ПОЛНОЙ ЗАДОЛЖЕННОСТИ (функция "Total debt")
+    else if (j < m && question == 6)
+    {
+    int d{};
+    int debt{};
+    string buff[m];
+    string bufDebt[m];
+    string cardDebt[m];
+    ifstream file10(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::in);
+        for (int i{}, l{}; i<m; i++)
+        {
+            file10 >> buff[i];
+            // cout << buff[i] << " ";
+            if (buff[i] == "/")
+            {
+                bufDebt[l] = buff[i-1];
+                debt += stoi(bufDebt[l]);
+                    if (stoi(bufDebt[l]) > 0)
+                    {
+                        cardDebt[d] = buff[i-4];
+                        cardDebt[d+1] = buff[i-2];
+                        cardDebt[d+2] = buff[i-1];
+                        d+=3;
+                    }
+                l++;
+            }
+            if (buff[i] == ";") break;
+        }
+        if (debt-total > 0)
+        {
+        cout << "  Total debt = " << debt-total << "\n" << "  Your credit card(s):\n";
+            for (int i{}; i<d; i+=3)
+            {
+                cout << "  " << cardDebt[i] << " - balance " << cardDebt[i+1]
+                 << ", debt " << cardDebt[i+2] << "\n";
+            }
+            cout << "\n\n";
+        }
+        if (debt-total <= 0) cout
+         << "  The debt balance is positive = " << abs(debt-total) << "\n\n";
+        file10.close();
+
+        cout << "\n";
+    }
+
+
+// ОБНОВЛЕНИЕ ЛИМИТА КАРТЫ (функция "Update card limit")
+    else if (j < m && question == 7)
+    {
+    cout << "  To update a card limit:\n";
+    for (int i=1; i<=j; i++)
+     cout << "  " << events[i] << "  (press " << i << ")" << "\n";
+
+    int quest{};
+    cin >> quest;
+
+    if (quest > 0 && quest <= j)
+    {
+        
+    }
+    
+     cout << "\n\n";
     }
 
 
@@ -474,7 +538,7 @@ int main() {
     if (i>0)
     {
         functions(j, m);
-        cout << "     To exit, press   (Q)\n\n";
+        cout << "     To exit, press  (Q/q)\n\n";
     }
     cin >> quit;
 }
@@ -511,17 +575,19 @@ void nowData(int d, int m, int y) // отображение текущей да�
 
 void functions(int j, int const m)
     {
-                    cout << "     Manual     (press 0)\n";
-         if (j > 0) cout << "     Update data      (1)\n";
-         if (j < m) cout << "     Add source       (2)\n";
-         if (j > 0) cout << "     Delete source    (3)\n";
-         if (j > 0) cout << "     On next montn    (4)\n";
-         if (j > 0) cout << "     Balance at limit (5)\n";
+                    cout << "     Manual      (press 0)\n";
+         if (j > 0) cout << "     Update data       (1)\n";
+         if (j < m) cout << "     Add source        (2)\n";
+         if (j > 0) cout << "     Delete source     (3)\n";
+         if (j > 0) cout << "     On next montn     (4)\n";
+         if (j > 0) cout << "     Balance at limit  (5)\n";
+         if (j > 0) cout << "     Total debt        (6)\n";
+         if (j > 0) cout << "     Update card limit (7)\n";
     LONG check = RegGetValueA(HKEY_CURRENT_USER, 
         "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", "d-clutch", 
             RRF_RT_REG_SZ, 0, 0, 0);
-    if (check == 0) cout << "     Delete autorun   (8)\n";
-    if (check == 2) cout << "     Autorun          (9)\n";
+    if (check == 0) cout << "     Delete autorun    (8)\n";
+    if (check == 2) cout << "     Autorun           (9)\n";
     }
 
 void totally(int total, int month, string FP)
