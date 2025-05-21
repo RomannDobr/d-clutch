@@ -51,7 +51,7 @@ int main() {
 /// 5. проверить все функции
 /// 6. обновление лимитов
 
-//// остановился на: 6. обновление лимитов (Update card limit)
+//// остановился на: 6. обновление лимитов (стр 544)
 
     time_t now = time(0); // текущая дата/время, основанные на текущей системе <ctime>
     struct tm* ltm = localtime(&now);
@@ -481,7 +481,6 @@ int main() {
         for (int i{}, l{}; i<m; i++)
         {
             file10 >> buff[i];
-            // cout << buff[i] << " ";
             if (buff[i] == "/")
             {
                 bufDebt[l] = buff[i-1];
@@ -518,16 +517,44 @@ int main() {
 // ОБНОВЛЕНИЕ ЛИМИТА КАРТЫ (функция "Update card limit")
     else if (j < m && question == 7)
     {
+        int o{};
+        int quest{};
+        int upLimit{};
+        string buff[n];
+        string buffer[n];
+
     cout << "  To update a card limit:\n";
     for (int i=1; i<=j; i++)
-     cout << "  " << events[i] << "  (press " << i << ")" << "\n";
+        cout << "  " << events[i] << "  (press " << i << ")" << "\n";
 
-    int quest{};
     cin >> quest;
+    cout << "  Enter new limit:\n";
+    cin >> upLimit;
+
 
     if (quest > 0 && quest <= j)
     {
-        
+        ifstream file11(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::in);
+        for (int i=0; file11; i++)
+        {
+            file11 >> buff[i];
+            o++;
+        }
+        file11.close();
+        // ofstream file12(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::out);
+        // for (int i=0, l=0; i<o; i++)
+        // {
+        //     file12 << buff[i];
+        //     if (buff[i] == "|") l++;
+        //     else if (l == quest) file12 << upLimit; 
+        // }
+        // file12.close();
+        ifstream file13(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::in);
+        for (int i=0; file13; i++)
+        {
+            file13 >> buff[i];
+            cout << " >" << buff[i];
+        }
     }
     
      cout << "\n\n";
