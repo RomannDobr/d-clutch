@@ -1,4 +1,6 @@
-Date 21 5 2025  -  17788 ru     | SberDeb - 1334 0 / | SberCred - 22 254000 / | AlfaDeb - 351 0 / | AlfaScore - 15000 0 / | VK - 710 0 / ;
+Date 22 5 2025 - 17417 ru | SberDeb - 1026 12 / | SberCred - 22 254001 / | AlfaDeb - 351 0 / | AlfaScore - 15000 0 / | VK - 710 0 / ; 
+
+Date 21 0 2025 - 17788 ru 0 SberDeb - 1334 0 0 | SberCred - 22 254000 / | AlfaDeb - 351 0 / | AlfaScore - 15000 0 / | VK - 710 19 / ; 
 
 Date 20 5 2025 - 17787 ru | SberDeb - 1334 0 / | SberCred - 393 254000 / | AlfaDeb - 351 0 / | AlfaScore - 15000 0 / | VK - 710 0 / ; 
 

@@ -45,13 +45,13 @@ int main() {
 /// 1. добавить проверку и в мануал запрет на использование ; - / |
 /// 2. глюки при удалении (///////)
 /// 3. залить на Гитхаб
-/// 4. сделать мануал и Readme. С переводом всех функций.
+/// 4. сделать мануал и Readme.
    // сделать чтобы он создавался при нажатии на 0 и указывал путь до текстовика
-   // при первом запуске (при отсутствии данных) выделить и написать с переводом
-/// 5. проверить все функции
-/// 6. обновление лимитов
+/// 5. Тесты. Катьке
+/// 6. Русифицировать
+/// 7. проверить все функции
 
-//// остановился на: 6. обновление лимитов (стр 544)
+//// остановился на: 7.
 
     time_t now = time(0); // текущая дата/время, основанные на текущей системе <ctime>
     struct tm* ltm = localtime(&now);
@@ -66,7 +66,6 @@ int main() {
     int question = 123; // 0 занят
     int remaind = 0;
     int limit = 0;
-    // int limitOnDay = 0;
     int total = 0;
     int j = 0;
     char credordebt;
@@ -522,42 +521,66 @@ int main() {
         int upLimit{};
         string buff[n];
         string buffer[n];
-
-    cout << "  To update a card limit:\n";
-    for (int i=1; i<=j; i++)
-        cout << "  " << events[i] << "  (press " << i << ")" << "\n";
-
-    cin >> quest;
-    cout << "  Enter new limit:\n";
-    cin >> upLimit;
-
-
-    if (quest > 0 && quest <= j)
-    {
+        
         ifstream file11(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::in);
         for (int i=0; file11; i++)
         {
             file11 >> buff[i];
             o++;
         }
-        file11.close();
-        // ofstream file12(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::out);
-        // for (int i=0, l=0; i<o; i++)
-        // {
-        //     file12 << buff[i];
-        //     if (buff[i] == "|") l++;
-        //     else if (l == quest) file12 << upLimit; 
-        // }
-        // file12.close();
-        ifstream file13(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::in);
-        for (int i=0; file13; i++)
+
+        cout << "  To update a card limit:\n";
+        
+        // отображение кредитных карт
+        for (int i{}, l=1; i<o; i++)
         {
-            file13 >> buff[i];
-            cout << " >" << buff[i];
+            if (buff[i] == "|" && stoi(buff[i+4]) > 0)
+            {
+                events[l] = buff[i+1];
+                cout << "  " << events[l] <<
+                " - limit = " << buff[i+4] << " (press " << l << ")" << "\n";
+                l++;
+            }
+            if (buff[i] == ";") break;
         }
-    }
+        file11.close();
+
+        // выбор карты
+        cin >> quest;
+        // ввод нового лимита
+        cout << "\n  Enter new limit:\n";
+        cin >> upLimit;
+
+        // перезапись нового лимита
+        if (quest > 0 && quest <= j)
+        {
+            ofstream file12(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::out);
+            bool flag = true;
+            for (int i{}, l{}; i<o; i++)
+            {
+                    file12 << buff[i] << " ";
+                    if (buff[i] == "|" && stoi(buff[i+4]) > 0) l++;
+                    if (l == quest && flag == true)
+                    {
+                        if (buff[i+1] == ";") file12 << buff[i+1] << "\n\n";
+                        else file12 << buff[i+1] << " ";
+                        if (buff[i+2] == ";") file12 << buff[i+2] << "\n\n";
+                        else file12 << buff[i+2] << " ";
+                        if (buff[i+3] == ";") file12 << buff[i+3] << "\n\n";
+                        else file12 << buff[i+3] << " ";
+                        if (buff[i+4] == ";") file12 << upLimit << "\n\n";
+                        else file12 << upLimit << " ";
+                        flag = false;
+                        i+=4;
+                    }
+
+                    if (buff[i] == ";") file12 << "\n\n";
+                }
+                file12.close();
+
+            }
     
-     cout << "\n\n";
+        cout << "\n\n";
     }
 
 
