@@ -44,14 +44,15 @@ int main() {
 
 /// 1. добавить проверку и в мануал запрет на использование ; - / |
 /// 2. глюки при удалении (///////)
-/// 3. залить на Гитхаб
+/// 3. Тесты. Катьке
 /// 4. сделать мануал и Readme.
-   // сделать чтобы он создавался при нажатии на 0 и указывал путь до текстовика
-/// 5. Тесты. Катьке
-/// 6. Русифицировать
-/// 7. проверить все функции
+    // сделать чтобы он создавался при нажатии на 0 и указывал путь до текстовика
+/// 5. Русифицировать
+/// 6. залить на Гитхаб (отменить лимит 500)
+/// 7. Предлагает несуществующие опции при пустом файле / потестить
+/// 8. Не заносит Тотал в изначальный файл (стр 310)
 
-//// остановился на: 7.
+//// остановился на: 8.
 
     time_t now = time(0); // текущая дата/время, основанные на текущей системе <ctime>
     struct tm* ltm = localtime(&now);
@@ -165,7 +166,7 @@ int main() {
 
 
 // ЦИКЛ ВВОДА ДАННЫХ
-    for (int i{}; i<23; i++)
+    for (int i{}; i<m; i++)
     {
         if (quit == 'q' || quit == 'Q') break;
         else if (quit != 'q' || quit != 'Q')
@@ -309,45 +310,78 @@ int main() {
 // СОЗДАНИЕ
     else if (j < m && question == 2)
     {
+        int total{};
+        remaind = 0;
+        char quest;
+        char buffer[m];
         string message;
-        cout << "  Name of the new card?\n";
-
-        getline(cin, message);
-        while (message.empty())
+        for (int i{}; i<m; i++)
         {
-            cin.clear();
-            getline(cin, message);
-        }
-
-        ofstream name(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::app);
-        name << "Date " + to_string(day) + " " + to_string(month) + " " + to_string(year)
-         + "  -  " + to_string(total) + " ru\n | " << message << " - ";
-        name.close();
-
-        cout << "  Enter the remainder\n";
-        ofstream name2(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::app);
-        if (name2.is_open())
-        {
-            cin >> remaind;
-            ofstream name2(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::app);
-            name2 << remaind << " ";
-            name2.close();
-            cout << "  Credit card (press \"c\"). Debit (press \"d\").\n";
-            cin >> credordebt;
-            if (credordebt == 'c' || credordebt == 'C')
+            ofstream name(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::app);
+            if (quest != 'Y' || quit != 'y')
             {
-                cout << "  Credit limit\n";
-                cin >> limit;
+                cout << "  Name of the new card?\n";
+                
+                getline(cin, message);
+                while (message.empty())
+                {
+                    cin.clear();
+                    getline(cin, message);
+                }
+                if (filesystem::is_empty("d-clutch_data.txt"))
+                {
+                name << "Date " + to_string(day) + " " + to_string(month) + " " + to_string(year)
+                + " - ";
+                cout << "  Enter the remainder\n";
+                cin >> remaind;
+                buffer[i] = remaind;
+                total += buffer[i];
+                name << to_string(total) + " ru | " << message << " - " << remaind << " ";
+                cout << "  Credit card (press \"c\"). Debit (press \"d\").\n";
+                cin >> credordebt;
+                if (credordebt == 'c' || credordebt == 'C')
+                {
+                    cout << "  Credit limit\n";
+                    cin >> limit;
+                }
+                name << limit << " /";
             }
-            ofstream name4(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::app);
-            name4 << limit << " /";
-            name4 << ";\n\n";
-            name4.close();
         }
+        
+            if (!filesystem::is_empty("d-clutch_data.txt"))
+            {
+                limit = 0;
+                cout << "  Enter the remainder\n";
+                cin >> remaind;
+                buffer[i] = remaind;
+                total += buffer[i];
+                name << " | " << message << " - " << remaind << " ";
+                cout << "  Credit card (press \"c\"). Debit (press \"d\").\n";
+                cin >> credordebt;
+                    if (credordebt == 'c' || credordebt == 'C')
+                    {
+                        cout << "  Credit limit\n";
+                        cin >> limit;
+                    }
+                name << limit << " /";
+            }
+            name.close();
+            cout << "Add another resource? (Y/N)\n";
+            cin >> quest;
+            if (quest == 'N' || quest == 'n')
+            {
+                ofstream name2(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::app);    
+                name2 << " ;\n\n";
+                name2.close();
+                break;
+            }
+        }
+        totally(total, month, FP);
+        j = 1;
     }
+    
 
-
-// УДАЛЕНИЕ
+    // УДАЛЕНИЕ
     else if (j > 0 && question == 3)
     {
     cout << "  To delete a resource:\n";
@@ -588,7 +622,7 @@ int main() {
     if (i>0)
     {
         functions(j, m);
-        cout << "     To exit, press  (Q/q)\n\n";
+        cout << "     To exit, press    (Q)\n\n";
     }
     cin >> quit;
 }
@@ -614,7 +648,7 @@ void nowData(int w, int d, int m, int y) // отображение текуще�
     case 6: cout << "sat"; break;
     case 7: cout << "sun"; break;
     }
-    cout << "." << d << "." << m << "." << y << ". -" << endl;
+    cout << "." << d << "." << m << "." << y << ". -\n\n";
 }
 
 void nowData(int d, int m, int y) // отображение текущей даты (без дня недели)
