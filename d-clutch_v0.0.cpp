@@ -50,11 +50,13 @@ int main() {
 /// 4. сделать мануал и Readme.
     // сделать чтобы он создавался при нажатии на 0 и указывал путь до текстовика
 /// 5. Русифицировать
+/// 6. Добавить кнопку "занести покупку"(8) (минусануть с карты на выбор)
+/// 7. Автозагрузку и удаление из нее на одну кнопку (9)
 /// 6. залить на Гитхаб (отменить лимит 500)
-/// 7. Потестить
+/// 7. Потестить (дублируются карты после удаления)
 /// 8. Кривое добавление ресурсов (стр 310) / поправить total
 
-//// остановился на: 8. не ДОсоздаёт карты (стр 339)
+//// остановился на: 8. поправить total (стр 331)
 
 
     time_t now = time(0); // текущая дата/время, основанные на текущей системе <ctime>
@@ -316,7 +318,7 @@ int main() {
                         buf[i] = "| " + message + " - ";
                         buf[i] += to_string(remaind) + " ";
                         buf[i] += to_string(limit) + " /";
-                        cout << " buf=" << buf[i] << "<<< \n";
+                        // cout << " buf=" << buf[i] << "<<< \n";
                     }
                     cout << "  Add another resource? (Y/N)\n";
                     create++;
@@ -325,40 +327,54 @@ int main() {
                 }
 
                 // обновление в текстовике
-                // считывание данных из файла
                 int k{};
                 string buff[n];
 
-                fstream name(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::out | ios::in);
-                if(filesystem::is_empty("d-clutch_data.txt")) {
-                    name << "Date " + to_string(day) + " " + to_string(month) + " "
-                         + to_string(year) + " - " + to_string(total) + " ru ";
-                    for(int i{}; i < create; i++) name << buf[i] + " ";
-                }
+                // ifstream file1;
+                // file1.open(fs::path(FP).replace_filename("d-clutch_data.txt"));
+                // if(file1.is_open()) cout << ">OK!<";
+                // else cout << ">!ok<";
 
-                if(!filesystem::is_empty("d-clutch_data.txt")) {
-                    for(int i{}; name; i++) {
-                        name >> buff[i];
-                        buff[i] += " ";
-                        // cout << " >>" << buff[i] << "<< \n";
-                        k++;
+                fstream name;
+                name.open(fs::path(FP).replace_filename("d-clutch_data.txt"));
+                if(name.is_open()) {
+                    if(filesystem::is_empty("d-clutch_data.txt")) {
+                        name << "Date " + to_string(day) + " " + to_string(month) + " "
+                              + to_string(year) + " - " + to_string(total) + " ru ";
+                        for(int i{}; i < create; i++) name << buf[i] + " ";
+                        name << "; \n\n";
+                    } else {
+                        name.seekg(0);
+                        for(int i{}; name; i++) {
+                            name >> buff[i];
+                            buff[i] += " ";
+                            k++;
+                        }
+                        bool flag = true;
+                        for(int i{}, j{}; i < k; i++) {
+                            if(buff[i] == "; " && flag == true) {
+                                buff[i] = "";
+                                for(; j < create; j++) {
+                                    buff[i] += buf[j] += " ";
+                                }
+                                flag = false;
+                                buff[i] += "; \n\n";
+                            }
+                            if(buff[i] == "; " && flag == false) buff[i] = "; \n\n";
+                        }
                     }
-                    for(int i{}; i <= create; i++) if(buff[i] == ";") buff[i + k] = buf[i];
-                    cout << "-----------\n";
-                    name.clear();
-                    name.seekg(0);
-                    for(int i{}; i <= k + create; i++) {
-                        buff[i] += " ";
-                        name << buff[i];
-                        cout << buff[i];
+                    name.close();
+                } else cout << "\nname error\n\n";
+                ofstream name1;
+                name1.open(fs::path(FP).replace_filename("d-clutch_data.txt"));
+                if(name1.is_open()) {
+
+                    for(int i{}; i < k; i++) {
+                        name1 << buff[i];
                     }
-
-                }
-                name << "; \n\n";
-                name.close();
-
-                totally(total, month, FP);
-                j = 1;
+                } else cout << "\nname error\n\n";
+                // totally(total, month, FP);
+                // j = 1;
             }
 
 
