@@ -53,10 +53,10 @@ int main() {
 /// 6. Добавить кнопку "занести покупку"(8) (минусануть с карты на выбор)
 /// 7. Автозагрузку и удаление из нее на одну кнопку (9)
 /// 6. залить на Гитхаб (отменить лимит 500)
-/// 7. Потестить (дублируются карты после удаления)
-/// 8. Кривое добавление ресурсов (стр 310) / поправить total
+/// 7. Потестить / (дублируются карты после удаления)
+/// 8. Добавление ресурсов (поправить total)
 
-//// остановился на: 8. поправить total (стр 331)
+//// остановился на: 8. поправить total (стр 377)
 
 
     time_t now = time(0); // текущая дата/время, основанные на текущей системе <ctime>
@@ -340,7 +340,7 @@ int main() {
                 if(name.is_open()) {
                     if(filesystem::is_empty("d-clutch_data.txt")) {
                         name << "Date " + to_string(day) + " " + to_string(month) + " "
-                              + to_string(year) + " - " + to_string(total) + " ru ";
+                             + to_string(year) + " - " + to_string(total) + " ru ";
                         for(int i{}; i < create; i++) name << buf[i] + " ";
                         name << "; \n\n";
                     } else {
@@ -369,12 +369,40 @@ int main() {
                 name1.open(fs::path(FP).replace_filename("d-clutch_data.txt"));
                 if(name1.is_open()) {
 
-                    for(int i{}; i < k; i++) {
-                        name1 << buff[i];
+                    for(int i{}; i < k; i++) name1 << buff[i];
+
+
+
+
+                    string buffer0;
+                    string buffer1;
+                    int k = j;
+                    for(int i{}; i < n; i++) {
+                        name1 >> buffer0;
+                        if(buffer0 == "|") {
+                            name1 >> buffer0;
+                            name1 >> buffer1;
+                            name1 >> remainds[k];
+                            cout << " " << buffer0 << "-" << remainds[k] << "." << endl;
+                        }
+                        if(buffer0 == "/") k--;
+                        if(k < 0 || buffer0 == "" || buffer0 == ";") break;
                     }
+                    for(int i = 1; i <= j; i++) // подсчёт общего остатка
+                        total += atoi(remainds[i].c_str());
+
+
+
+
+                    name1.close();
                 } else cout << "\nname error\n\n";
-                // totally(total, month, FP);
-                // j = 1;
+
+
+
+
+
+                totally(total, month, FP);
+                j = 1;
             }
 
 
@@ -614,7 +642,7 @@ int main() {
 
     cout << "\n\n\n* Restart to enter new data\n\n";
 
-    // system("pause");
+// system("pause");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
