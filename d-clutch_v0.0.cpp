@@ -44,19 +44,15 @@ int main() {
     cout << "\n ---     d-clutch     ---\n";
 
 
-/// 1. добавить проверку и в мануал запрет на использование ; - / |
-/// 2. глюки при удалении (///////)
-/// 3. Тесты. Катьке
-/// 4. сделать мануал и Readme.
+/// 1. добавить проверку и в мануал запрет на использование ; - / | *
+/// 2. Тесты. Катьке
+/// 3. сделать мануал и Readme.
     // сделать чтобы он создавался при нажатии на 0 и указывал путь до текстовика
-/// 5. Русифицировать
-/// 6. Добавить кнопку "занести покупку"(8) (минусануть с карты на выбор)
-/// 7. Автозагрузку и удаление из нее на одну кнопку (9)
-/// 6. залить на Гитхаб (отменить лимит 500)
-/// 7. Потестить / (дублируются карты после удаления)
-/// 8. Добавление ресурсов (поправить total)
+/// 4. Русифицировать
+/// 5. Добавить кнопку "занести покупку" (минусануть с карты на выбор)
+/// 6. залить на Гитхаб
 
-//// остановился на: 8. поправить total (стр 377)
+//// остановился на: 
 
 
     time_t now = time(0); // текущая дата/время, основанные на текущей системе <ctime>
@@ -304,7 +300,7 @@ int main() {
                 string message;
                 for(int i{}; i < m; i++) {
                     if(quest == 'Y' || quest == 'y') {
-                        cout << "  Name of the new card?\n";
+                        cout << "  Name of the new card? (Don't use: -;/|*)\n";
                         cin >> message;
                         limit = 0;
                         cout << "  Enter the remainder\n";
@@ -325,15 +321,9 @@ int main() {
                     cin >> quest;
                     if(quest == 'N' || quest == 'n') break;
                 }
-
                 // обновление в текстовике
                 int k{};
                 string buff[n];
-
-                // ifstream file1;
-                // file1.open(fs::path(FP).replace_filename("d-clutch_data.txt"));
-                // if(file1.is_open()) cout << ">OK!<";
-                // else cout << ">!ok<";
 
                 fstream name;
                 name.open(fs::path(FP).replace_filename("d-clutch_data.txt"));
@@ -368,45 +358,38 @@ int main() {
                 ofstream name1;
                 name1.open(fs::path(FP).replace_filename("d-clutch_data.txt"));
                 if(name1.is_open()) {
-
                     for(int i{}; i < k; i++) name1 << buff[i];
-
-
-
-
-                    string buffer0;
-                    string buffer1;
-                    int k = j;
-                    for(int i{}; i < n; i++) {
-                        name1 >> buffer0;
-                        if(buffer0 == "|") {
-                            name1 >> buffer0;
-                            name1 >> buffer1;
-                            name1 >> remainds[k];
-                            cout << " " << buffer0 << "-" << remainds[k] << "." << endl;
-                        }
-                        if(buffer0 == "/") k--;
-                        if(k < 0 || buffer0 == "" || buffer0 == ";") break;
-                    }
-                    for(int i = 1; i <= j; i++) // подсчёт общего остатка
-                        total += atoi(remainds[i].c_str());
-
-
-
-
                     name1.close();
                 } else cout << "\nname error\n\n";
 
-
-
-
+                ifstream name2;
+                name2.open(fs::path(FP).replace_filename("d-clutch_data.txt"));
+                if(name2.is_open()) {
+                    string buffer0;
+                    string buffer1;
+                    k = 0;
+                    for(int i{}; i < n; i++) {
+                        name2 >> buffer0;
+                        if(buffer0 == "|") {
+                            name2 >> buffer0;
+                            name2 >> buffer1;
+                            name2 >> remainds[k];
+                            cout << " " << buffer0 << "-" << remainds[k] << ".\n";
+                            k++;
+                        }
+                        if(buffer0 == ";") break;
+                    }
+                    for(int i{}; i < k; i++) // подсчёт общего остатка
+                        total += atoi(remainds[i].c_str());
+                    name2.close();
+                } else cout << "\nname error\n\n";
 
                 totally(total, month, FP);
                 j = 1;
             }
 
 
-            // УДАЛЕНИЕ
+// УДАЛЕНИЕ
             else if(j > 0 && question == 3) {
                 cout << "  To delete a resource:\n";
                 for(int i = 1; i <= j; i++)
@@ -416,37 +399,64 @@ int main() {
                 cin >> quest;
 
                 if(quest > 0 && quest <= j) {
-                    char buff[n];
-                    char buf{};
-                    int o = 0;
+                    string buff[n];
+                    int k{};
                     ifstream delfile(fs::path(FP).replace_filename("d-clutch_data.txt"),
                                      ios::in);
-                    for(int i = 0; delfile; i++) {
-                        delfile.get(buf);
-                        buff[i] = buf;
-                        o++;
+                    for(int i{}; delfile; i++) {
+                        delfile >> buff[i];
+                        buff[i] += " ";
+                        k++;
                     }
                     delfile.close();
+
                     ofstream delfiles(fs::path(FP).replace_filename("d-clutch_data.txt"),
                                       ios::out);
-                    for(int i = 0, l = 0; i < o; i++) {
-                        if(buff[i] == '|') l++;
+                    for(int i{}, l{}; i < k - 1; i++) {
+                        if(buff[i] == "| " || buff[i] == "; ") l++;
                         if(quest == l) continue;
-                        else if(quest != l && l != 0) delfiles << buff[i];
+                        if(quest != l) delfiles << buff[i];
+                        if(buff[i] == "; ") delfiles << " \n\n";
                     }
-                    cout << "  " << events[quest] << " deleted";
+                    cout << "  " << events[quest] << " deleted\n\n";
                     delfiles.close();
+
+                    total = 0;
+                    ifstream delfiles2;
+                    delfiles2.open(fs::path(FP).replace_filename("d-clutch_data.txt"));
+                    if(delfiles2.is_open()) {
+                        string buffer0;
+                        string buffer1;
+                        k = 0;
+                        for(int i{}; i < n; i++) {
+                            delfiles2 >> buffer0;
+                            if(buffer0 == "|") {
+                                delfiles2 >> buffer0;
+                                delfiles2 >> buffer1;
+                                delfiles2 >> remainds[k];
+                                cout << " " << buffer0 << "-" << remainds[k] << ".\n";
+                                k++;
+                            }
+                            if(buffer0 == ";") break;
+                        }
+                        for(int i{}; i < k; i++) // подсчёт общего остатка
+                            total += atoi(remainds[i].c_str());
+                        delfiles2.close();
+                    } else cout << "\nname error\n\n";
+
+                    totally(total, month, FP);
+                    j = 1;
                 }
             }
 
 
 // АВТОЗАГРУЗКА
             else if(question == 9) {
-                autorun(question);
-                MessageBox(NULL, _T("Autorun is ON"), _T("Autorun"), 0);
-            } else if(question == 8) {
-                autorun(question);
-                MessageBox(NULL, _T("Autorun is OFF"), _T("Autorun"), 0);
+                LONG check = RegGetValueA(HKEY_CURRENT_USER,
+                                          "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", "d-clutch",
+                                          RRF_RT_REG_SZ, 0, 0, 0);
+                if(check == 0) autorun(8);
+                if(check == 2) autorun(9);
             }
 
 
@@ -465,26 +475,87 @@ int main() {
 
 // ПЕРЕСЧЁТ НА КОЛ-ВО ДНЕЙ ИСХОДЯ ИЗ ЗАДАННОГО ЛИМИТА (функция "Balance at the limit")
             else if(j > 0 && question == 5) {
-                int quest{500};
+                int quest{1000};
                 int answ{};
                 int diff{};
-                // cout << "  Enter limit on day\n"; // для ввода лимита
-                // cin >> quest;                     // для ввода лимита
-                cout << "  Limit on day = 500\n\n";    // при заранее заданом лимите
+                int k{};
+                string buffer0;
+                string buffer[n];
+
+                fstream limit0;
+                limit0.open(fs::path(FP).replace_filename("d-clutch_data.txt"));
+                if(limit0.is_open()) {
+                    for(int i{}; limit0; i++) {
+                        limit0 >> buffer0;
+                        if(buffer0 == "*") {
+                            limit0 >> quest;
+                            break;
+                        }
+                    }
+                    limit0.close();
+                }
+
+                char change{'N'};
+                // if (quest > 0) {
+                cout << "  Limit is: " << quest << ". Change the limit press (Y/N)\n";
+                cin >> change;
+                if(change == 'Y' || change == 'y') {
+                    cout << "  Enter limit on day\n"; // для ввода лимита
+                    cin >> quest;                    // для ввода лимита
+
+                    bool flag = false;
+                    fstream limit1;
+                    limit1.open(fs::path(FP).replace_filename("d-clutch_data.txt"));
+                    if(limit1.is_open()) {
+                        for(int i{}; limit1; i++) {
+                            limit1 >> buffer[i];
+                            buffer[i] += " ";
+                            if(buffer[i] == "* ") {
+                                buffer[i] = "* " + quest;
+                                flag = true;
+                                break;
+                            }
+                            if(buffer[i] == "; ") buffer[i] = "; \n\n";
+                            k++;
+                        }
+                        limit1.close();
+                    } else cout << "\nlimit1 error\n\n";
+
+                    if(flag == false) {
+                        fstream limit2;
+                        limit2.open(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::app);
+                        if(limit2.is_open()) {
+                            limit2 << "* " << quest;
+                            limit2.close();
+                        } else cout << "\nlimit2 error\n\n";
+                    } else {
+                        fstream limit3;
+                        limit3.open(fs::path(FP).replace_filename("d-clutch_data.txt"));
+                        if(limit3.is_open()) {
+                            for(int i{}; i < k; i++) {
+                                limit3 << buffer[i];
+                            }
+                            limit3 << "* ";
+                            limit3 << to_string(quest);
+                            limit3 << " ";
+                            limit3.close();
+                        } else cout << "\nlimit3 error\n\n";
+                    }
+                }
 
                 string buf{};
                 string buff[6];
                 string buff2[5];
-                string buffer[m];
+                string bufer[m];
                 ifstream file8(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::in);
                 for(int i{}; i < 6; i++) file8 >> buff[i];
-                for(int i{}; i < m; i++) file8 >> buffer[i];
+                for(int i{}; i < m; i++) file8 >> bufer[i];
                 for(int i{}, l{}; i < m; i++) {
-                    if(buffer[i] == ";") {
-                        buff2[l] = buffer[i + 2];
-                        buff2[l + 1] = buffer[i + 3];
-                        buff2[l + 2] = buffer[i + 4];
-                        buff2[l + 3] = buffer[i + 6];
+                    if(bufer[i] == ";") {
+                        buff2[l] = bufer[i + 2];
+                        buff2[l + 1] = bufer[i + 3];
+                        buff2[l + 2] = bufer[i + 4];
+                        buff2[l + 3] = bufer[i + 6];
                         break;
                     }
                 }
@@ -519,6 +590,7 @@ int main() {
                                                << " = " << abs(diff) << " ru.\n\n";
                     else cout << "  Expenses meet the limit.\n\n";
                 }
+
             }
 
 
@@ -692,7 +764,7 @@ void functions(int j, int const m) {
     LONG check = RegGetValueA(HKEY_CURRENT_USER,
                               "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", "d-clutch",
                               RRF_RT_REG_SZ, 0, 0, 0);
-    if(check == 0) cout << "     Delete autorun    (8)\n";
+    if(check == 0) cout << "     Delete autorun    (9)\n";
     if(check == 2) cout << "     Autorun           (9)\n";
 }
 
@@ -735,7 +807,8 @@ void autorun(int tog) {
         cout << "ON" << endl;
         HKEY hkey;
         LONG key = RegOpenKeyExA(HKEY_CURRENT_USER,
-                                 "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_WRITE, &hkey);
+                                 "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+                                 0, KEY_WRITE, &hkey);
         if(ERROR_SUCCESS == key) key = RegSetValueExA(hkey, "d-clutch", 0, REG_SZ,
                                                           (BYTE*)FP.c_str(), strlen(FP.c_str()) + 111);
     }
