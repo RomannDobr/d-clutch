@@ -21,12 +21,15 @@ namespace fs = std::filesystem;
 
 void nowData(int w, int d, int m, int y);
 void nowData(int d, int m, int y);
+void allFunctions(int j, int const m);
 void functions(int j, int const m);
 void totally(int total, int month, string FP);
+void changeCardValue(string FP, string *arr, int j, bool plusminus);
 void autorun(int tog);
 void manual();
 
 int main() {
+    setlocale(LC_ALL, "RU");
 
 
 // НАСТРОЙКА ОТОБРАЖЕНИЯ КОНСОЛИ
@@ -49,11 +52,8 @@ int main() {
 /// 3. добавить проверку и в мануал запрет на использование ; - / | *
 /// 4. сделать мануал и Readme.
     // сделать чтобы он создавался при нажатии на 0 и указывал путь до текстовика
-/// 5. Добавить кнопку "добавить покупку" (минусануть с карты на выбор)
 
-//// остановился на: Добавить кнопку (стр 328) (можно Покупку сместить на (3), а на (2) занести
-    // "Добавить доход" (сделанный по тому же шаблону только в плюс (сделать функцией)))
-    // Мануал сместить с (0) на букву. Убрать разделитель ------ с автозапуском
+//// остановился на:
 
 
     time_t now = time(0); // текущая дата/время, основанные на текущей системе <ctime>
@@ -75,6 +75,7 @@ int main() {
     char quit = '_';
     string events[m];
     string remainds[m];
+    bool plusminus = true;
 
     struct tm a = { 0, 0, 0, day, month - 1, 101, 0, 0, 0 }; // текущая дата
     time_t x = mktime(&a); //
@@ -157,7 +158,7 @@ int main() {
 
 
 // ОТОБРАЖЕНИЕ СЕРВИСНЫХ ФУНКЦИЙ
-    functions(j, m);
+    allFunctions(j, m);
 
 
 // ЦИКЛ ВВОДА ДАННЫХ
@@ -292,59 +293,22 @@ int main() {
             }
 
 
-// ДОБАВЛЕНИЕ ЕДИНИЧНОГО РАСХОДА(ПОКУПКИ) (функция "Add purchase")
+// ДОБАВЛЕНИЕ ПОСТУПЛЕНИЯ НА ОДНУ ИЗ КАРТ (функция "Add income")
             else if(j > 0 && question == 2) {
-                int k{};
-                int quest{};
-                int newPurchase{};
-                int newValue{};
-                string buff[n];
-                string buffer[n];
-                // отображение карт
-                cout << "\n  Change value on:\n\n";
-                for(int i = 1; i <= j; i++)
-                    cout << "  " << events[i] << "  (press " << i << ")" << "\n";
-                // выбор карты
-                cin >> quest;
-                // ввод нового расхода
-                cout << "\n  Enter new purchase:\n";
-                cin >> newPurchase;
-                // загрузка текстовика в буфер
-                if(quest > 0 && quest <= j) {
-                    ifstream purchaseFile(fs::path(FP).replace_filename("d-clutch_data.txt"));
-                    for(int i{}; purchaseFile; i++) {
-                        purchaseFile >> buff[i];
-                        buff[i] += " ";
-                        k++;
-                    }
-                    purchaseFile.close();
-                    // // перезапись нового значения
-                    ofstream purchaseFile1(fs::path(FP).replace_filename("d-clutch_data.txt"));
-                    bool flag = true;
-                    for(int i{}; i < k; i++) {
-                        // if (i == 0) cout << events[quest];
-                        // cout << " " << buff[i];
-                        if(buff[i] == events[quest] + " " && flag == true) {
-                            // cout << "\n  " << buff[i] << " -- " << buff[i + 2] << "\n\n";
-                            newValue = (newPurchase - newPurchase*2) + stoi(buff[i + 2]);
-                            buff[i + 2] = to_string((newPurchase - newPurchase*2) + stoi(buff[i + 2]));
-                            purchaseFile1 << buff[i];
-                            purchaseFile1 << buff[i + 1];
-                            purchaseFile1 << buff[i + 2];
-                            flag = false;
-                            i += 2;
-                        }
-                        purchaseFile1 << buff[i];
-                        if(buff[i] == "; ") purchaseFile1 << "\n\n";
-                    }
-                    purchaseFile1.close();
-                }
-                cout << "\nNow value: " << newValue << "\n\n";
+                plusminus = true;
+                changeCardValue(FP, events, j, plusminus);
+            }
+
+
+// ДОБАВЛЕНИЕ ЕДИНИЧНОГО РАСХОДА(ПОКУПКИ) (функция "Add purchase")
+            else if(j > 0 && question == 3) {
+                plusminus = false;
+                changeCardValue(FP, events, j, plusminus);
             }
 
 
 // СОЗДАНИЕ
-            else if(j < m && question == 6) {
+            else if(j < m && question == 7) {
                 remaind = 0;
                 int total{}, create{};
                 char quest = 'y';
@@ -442,7 +406,7 @@ int main() {
 
 
 // УДАЛЕНИЕ
-            else if(j > 0 && question == 7) {
+            else if(j > 0 && question == 8) {
                 cout << "  To delete a resource:\n";
                 for(int i = 1; i <= j; i++)
                     cout << "  " << events[i] << "  (press " << i << ")" << "\n";
@@ -503,7 +467,7 @@ int main() {
 
 
 // АВТОЗАГРУЗКА
-            else if(question == 9) {
+            else if(question == 10) {
                 LONG check = RegGetValueA(HKEY_CURRENT_USER,
                                           "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", "d-clutch",
                                           RRF_RT_REG_SZ, 0, 0, 0);
@@ -513,7 +477,7 @@ int main() {
 
 
 // ПЕРЕСЧЁТ ДО 1-ГО ЧИСЛА СЛЕД. МЕСЯЦА (функция "On next montn")
-            else if(j > 0 && question == 4) {
+            else if(j > 0 && question == 5) {
                 cout << "\n\n  On next montn - ";
 
                 struct tm c = { 0, 0, 0, 0, month + 1, 101, 0, 0, 0 }; // пересчёт на дни
@@ -526,7 +490,7 @@ int main() {
 
 
 // ПЕРЕСЧЁТ НА КОЛ-ВО ДНЕЙ ИСХОДЯ ИЗ ЗАДАННОГО ЛИМИТА (функция "Balance at the limit")
-            else if(j > 0 && question == 3) {
+            else if(j > 0 && question == 4) {
                 int quest{1000};
                 int answ{};
                 int diff{};
@@ -646,7 +610,7 @@ int main() {
 
 
 // ОТОБРАЖЕНИЕ ПОЛНОЙ ЗАДОЛЖЕННОСТИ (функция "Total debt")
-            else if(j < m && question == 5) {
+            else if(j < m && question == 6) {
                 int d{};
                 int debt{};
                 string buff[m];
@@ -688,7 +652,7 @@ int main() {
 
 
 // ОБНОВЛЕНИЕ ЛИМИТА КАРТЫ (функция "Update card limit")
-            else if(j < m && question == 8) {
+            else if(j < m && question == 9) {
                 int o{};
                 int quest{};
                 int upLimit{};
@@ -803,23 +767,37 @@ void nowData(int d, int m, int y) { // отображение текущей д�
     cout << "." << d << "." << m << "." << y << ". -\n";
 }
 
-void functions(int j, int const m) {
+void allFunctions(int j, int const m) {
     /*_*/if(j > 0) cout << "        Update data       (1)\n";
-    /*_*/if(j > 0) cout << "        Add purchase      (2)\n";
-    /*_*/if(j > 0) cout << "        Balance at limit  (3)\n";
-    /*_*/if(j > 0) cout << "        On next montn     (4)\n";
-    /*_*/if(j > 0) cout << "        Total debt        (5)\n";
+    /*_*/if(j > 0) cout << "        Add income        (2)\n";
+    /*_*/if(j > 0) cout << "        Add purchase      (3)\n";
+    /*_*/if(j > 0) cout << "        Balance at limit  (4)\n";
+    /*_*/if(j > 0) cout << "        On next montn     (5)\n";
+    /*_*/if(j > 0) cout << "        Total debt        (6)\n";
     /*_*/if(j > 0) cout << "        ---------------------\n";
-    /*_*/if(j < m) cout << "        Add source        (6)\n";
-    /*_*/if(j > 0) cout << "        Delete source     (7)\n";
-    /*_*/if(j > 0) cout << "        Update card limit (8)\n";
+    /*_*/if(j < m) cout << "        Add source        (7)\n";
+    /*_*/if(j > 0) cout << "        Delete source     (8)\n";
+    /*_*/if(j > 0) cout << "        Update card limit (9)\n";
     /*_*/if(j > 0) cout << "        ---------------------\n";
     LONG check = RegGetValueA(HKEY_CURRENT_USER,
                               "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", "d-clutch",
                               RRF_RT_REG_SZ, 0, 0, 0);
-    if(check == 0) cout << "        Delete autorun    (9)\n";
-    if(check == 2) cout << "        Autorun           (9)\n";
+    if(check == 0) cout << "        Delete autorun   (10)\n";
+    if(check == 2) cout << "        Autorun          (10)\n";
     /*___________*/cout << "        Manual      (press 0)\n";
+}
+
+void functions(int j, int const m) {
+    /*_*/if(j > 0) cout << "        Update data       (1)\n";
+    /*_*/if(j > 0) cout << "        Add income        (2)\n";
+    /*_*/if(j > 0) cout << "        Add purchase      (3)\n";
+    /*_*/if(j > 0) cout << "        Balance at limit  (4)\n";
+    /*_*/if(j > 0) cout << "        On next montn     (5)\n";
+    /*_*/if(j > 0) cout << "        Total debt        (6)\n";
+    /*_*/if(j > 0) cout << "        ---------------------\n";
+    /*_*/if(j < m) cout << "        Add source        (7)\n";
+    /*_*/if(j > 0) cout << "        Delete source     (8)\n";
+    /*_*/if(j > 0) cout << "        Update card limit (9)\n";
 }
 
 void totally(int total, int month, string FP) {
@@ -841,6 +819,58 @@ void totally(int total, int month, string FP) {
         cout << floor(total / (difftime(summer, x) / (60 * 60 * 24))) << " ru./day.\n\n\n";
     if(x != (time_t)(-1) && summer != (time_t)(-1) && summer == x)
         cout << total << " ru./day.\n\n\n";
+}
+
+void changeCardValue(string FP, string *events, int j, bool plusminus) {
+    int k{};
+    int quest{};
+    int value{};
+    int newValue{};
+    string buff[3210];
+    string buffer[3210];
+    // отображение карт
+    cout << "\n  Change value on:\n\n";
+    for(int i = 1; i <= j; i++)
+        cout << "  " << events[i] << "  (press " << i << ")" << "\n";
+    // выбор карты
+    cin >> quest;
+    // ввод нового расхода
+    if(plusminus == true) cout << "\n  Enter new income:\n";
+    if(plusminus == false) cout << "\n  Enter new purchase:\n";
+    cin >> value;
+    // загрузка текстовика в буфер
+    if(quest > 0 && quest <= j) {
+        ifstream purchaseFile(fs::path(FP).replace_filename("d-clutch_data.txt"));
+        for(int i{}; purchaseFile; i++) {
+            purchaseFile >> buff[i];
+            buff[i] += " ";
+            k++;
+        }
+        purchaseFile.close();
+        // // перезапись нового значения
+        ofstream purchaseFile1(fs::path(FP).replace_filename("d-clutch_data.txt"));
+        bool flag = true;
+        for(int i{}; i < k; i++) {
+            if(buff[i] == events[quest] + " " && flag == true) {
+                if(plusminus == true) {
+                    newValue = (value) + stoi(buff[i + 2]);
+                    buff[i + 2] = to_string((value) + stoi(buff[i + 2]));
+                }
+                if(plusminus == false) {
+                    newValue = (value - value * 2) + stoi(buff[i + 2]);
+                    buff[i + 2] = to_string((value - value * 2) + stoi(buff[i + 2]));
+                }
+                purchaseFile1 << buff[i];
+                purchaseFile1 << buff[i + 1];
+                purchaseFile1 << buff[i + 2] << " ";
+                flag = false;
+                i += 2;
+            } else purchaseFile1 << buff[i];
+            if(buff[i] == "; ") purchaseFile1 << "\n\n";
+        }
+        purchaseFile1.close();
+    }
+    cout << "\nNow value: " << newValue << "\n";
 }
 
 void autorun(int tog) {
@@ -869,7 +899,45 @@ void autorun(int tog) {
 }
 
 void manual() {
+    SetConsoleOutputCP(65001); // SetConsoleOutputCP(65001);
+    SetConsoleCP(65001);     //       SetConsoleCP(65001);
     cout << " --------------------------------------------------------------------\n";
-    cout << "                       Manual in development.\n";
+    cout << "       Update data (1) - Обновить данные по всем картам\n";
+    cout << "        Add income (2) - Добавить доход на выбранную карту\n";
+    cout << "      Add purchase (3) - Добавить расход (покупку) на карту\n";
+    cout << "  Balance at limit (4) - Рассчитать остаток исходя из лимита на день\n";
+    cout << "     On next month (5) - Пересчет до 1-го числа последующего месяца\n";
+    cout << "        Total debt (6) - Показать полную задолженность\n";
+    cout << "        Add source (7) - Добавить новую карту\n";
+    cout << "     Delete source (8) - Удалить карту\n";
+    cout << " Update card limit (9) - Обновить лимит кредитной карты\n";
+    cout << " Autorun/Delete a.(10) - Управление автозагрузкой\n\n";
+    cout << " РАБОТА С ПРОГРАММОЙ\n\n";
+    cout << " Добавление карт:\n";
+    cout << " Нажмите 7 для добавления новой карты\n";
+    cout << " Введите название карты (не используйте символы: -;/|*)\n";
+    cout << " Укажите текущий остаток\n";
+    cout << " Выберите тип карты (кредитная c или дебетовая d)\n";
+    cout << " Для кредитной карты укажите лимит\n\n";
+    cout << " Обновление данных:\n";
+    cout << " Нажмите 1 для обновления остатков на всех картах\n";
+    cout << " Введите новые значения для каждой карты\n\n";
+    cout << " Добавление данных:\n";
+    cout << " 2 - добавить доход (увеличит баланс выбранной карты)\n";
+    cout << " 3 - добавить расход (уменьшит баланс выбранной карты)\n\n";
+    cout << " Анализ расходов:\n";
+    cout << " 4 - расчет баланса при заданном дневном лимите\n";
+    cout << " 5 - пересчет расходов до конца месяца\n";
+    cout << " 6 - просмотр общей задолженности по кредитным картам\n\n";
+    cout << " Управление картами:\n";
+    cout << " 8 - удалить карту\n";
+    cout << " 9 - изменить лимит кредитной карты\n\n";
+    cout << " Автозагрузка:\n";
+    cout << " 10 - включить или выключить автозагрузку при старте системы\n\n";
+    cout << " ВАЖНО!\n";
+    cout << " Данные автоматически сохраняются в файл d-clutch_data.txt\n";
+    cout << " в той же папке, где находится программа\n\n";
+    cout << " Не изменяйте структуру файла данных вручную - это может привести \n";
+    cout << " к ошибкам\n";
     cout << " --------------------------------------------------------------------\n\n";
 }
