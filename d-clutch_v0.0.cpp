@@ -26,7 +26,7 @@ void functions(int j, int const m);
 void totally(int total, int month, string FP);
 void changeCardValue(string FP, string *arr, int j, bool plusminus);
 void autorun(int tog);
-void manual();
+void manual(string FP);
 
 int main() {
     setlocale(LC_ALL, "RU");
@@ -48,12 +48,12 @@ int main() {
 
 
 /// 1. Тесты. Катьке
-/// 2. Русифицировать
+/// 2. Русифицировать (попробовать переопределение операторов ввода в вывода)
+    // попробовать перевайбкодить на флаттер
 /// 3. добавить проверку и в мануал запрет на использование ; - / | *
-/// 4. сделать мануал и Readme.
-    // сделать чтобы он создавался при нажатии на 0 и указывал путь до текстовика
+/// 4. мануал и Readme
 
-//// остановился на:
+//// остановился на: 4 (поправить отображаемый путь к папке), залить всЁ на Гитхаб.
 
 
     time_t now = time(0); // текущая дата/время, основанные на текущей системе <ctime>
@@ -173,7 +173,7 @@ int main() {
 
 
 // ИНСТРУКЦИЯ
-            if(i > 0 && question == 0) manual();
+            if(i > 0 && question == 0) manual(FP);
 
 
 // ОБНОВЛЕНИЕ ДАННЫХ
@@ -330,7 +330,6 @@ int main() {
                         buf[i] = "| " + message + " - ";
                         buf[i] += to_string(remaind) + " ";
                         buf[i] += to_string(limit) + " /";
-                        // cout << " buf=" << buf[i] << "<<< \n";
                     }
                     cout << "  Add another resource? (Y/N)\n";
                     create++;
@@ -898,7 +897,7 @@ void autorun(int tog) {
     }
 }
 
-void manual() {
+void manual(string FP) {
     SetConsoleOutputCP(65001); // SetConsoleOutputCP(65001);
     SetConsoleCP(65001);     //       SetConsoleCP(65001);
     cout << " --------------------------------------------------------------------\n";
@@ -940,4 +939,52 @@ void manual() {
     cout << " Не изменяйте структуру файла данных вручную - это может привести \n";
     cout << " к ошибкам\n";
     cout << " --------------------------------------------------------------------\n\n";
+
+    ofstream manualFiles;
+    manualFiles.open(fs::path(FP).replace_filename("d-clutch_MANUAL.txt"));
+    if(manualFiles.is_open()) {
+        if(filesystem::is_empty("d-clutch_MANUAL.txt")) {
+            manualFiles << " Инструкция пользователя для программы d-clutch\n\n";
+            manualFiles << " Update data (1) - Обновить данные по всем картам.\n";
+            manualFiles << " Add income (2) - Добавить доход на выбранную карту.\n";
+            manualFiles << " Add purchase (3) - Добавить расход (покупку) на карту.\n";
+            manualFiles << " Balance at limit (4) - Рассчитать остаток исходя из заданного";
+            manualFiles << " лимита на день.\n";
+            manualFiles << " On next month (5) - Пересчет до первого числа последующего месяца.\n";
+            manualFiles << " Total debt (6) - Показать полную задолженность.\n";
+            manualFiles << " Add source (7) - Добавить новую карту.\n";
+            manualFiles << " Delete source (8) - Удалить карту.\n";
+            manualFiles << " Update card limit (9) - Обновить лимит кредитной карты.\n";
+            manualFiles << " Autorun/Delete a.(10) - Управление автозагрузкой.\n\n";
+            manualFiles << " РАБОТА С ПРОГРАММОЙ\n\n";
+            manualFiles << " Добавление карт:\n";
+            manualFiles << " Нажмите 7 для добавления новой карты.\n";
+            manualFiles << " Введите название карты (не используйте символы: -;/|*).\n";
+            manualFiles << " Укажите текущий остаток.\n";
+            manualFiles << " Выберите тип карты (кредитная c или дебетовая d).\n";
+            manualFiles << " Для кредитной карты укажите лимит.\n\n";
+            manualFiles << " Обновление данных:\n";
+            manualFiles << " Нажмите 1 для обновления остатков на всех картах.\n";
+            manualFiles << " Введите новые значения для каждой карты.\n\n";
+            manualFiles << " Добавление данных:\n";
+            manualFiles << " 2 - добавить доход (увеличит баланс выбранной карты).\n";
+            manualFiles << " 3 - добавить расход (уменьшит баланс выбранной карты).\n\n";
+            manualFiles << " Анализ расходов:\n";
+            manualFiles << " 4 - расчет баланса при заданном дневном лимите.\n";
+            manualFiles << " 5 - пересчет расходов до конца месяца.\n";
+            manualFiles << " 6 - просмотр общей задолженности по кредитным картам.\n\n";
+            manualFiles << " Управление картами:\n";
+            manualFiles << " 8 - удалить карту.\n";
+            manualFiles << " 9 - изменить лимит кредитной карты.\n\n";
+            manualFiles << " Автозагрузка:\n";
+            manualFiles << " 10 - включить или выключить автозагрузку при старте системы.\n\n";
+            manualFiles << " ВАЖНО!\n";
+            manualFiles << " Данные автоматически сохраняются в файл d-clutch_data.txt";
+            manualFiles << " в той же папке, где находится программа.\n\n";
+            manualFiles << " Не изменяйте структуру файла данных вручную - это может привести к ошибкам.";
+            cout << " ИНСТРУКЦИЮ ТАКЖЕ МОЖНО ПОЧИТАТЬ В ПАПКЕ:\n " << FP << "\n\n";
+        } else {
+            cout << " ИНСТРУКЦИЮ ТАКЖЕ МОЖНО ПОЧИТАТЬ В ПАПКЕ:\n " << FP << "\n\n";
+        }
+    } else cout << "\nmanualFiles error\n\n";
 }
