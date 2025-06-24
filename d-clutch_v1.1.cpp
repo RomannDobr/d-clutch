@@ -33,6 +33,8 @@ int checkDigit();
 int checkNumber();
 bool checkStringContains(const string &str);
 string checkString();
+void Set65001();
+void Set1251();
 
 int main()
 {
@@ -49,13 +51,15 @@ int main()
     // fontInfo.dwFontSize.Y = 15; // установка размера шрифта
     // SetCurrentConsoleFontEx( hConsole, TRUE, &fontInfo );
 
-    cout << "\n ---     d-clutch     ---\n";
+    Set65001();
+    cout << "\n ---        d-clutch        ---\n";
 
     /// 0. добавить иконку
-    /// 1. Тесты K
-    /// 2. Русифицировать (попробовать переопределение операторов ввода в вывода)
+    /// 1. Придумать защиту
+    /// 2. Тесты K
+    /// 3. Русифицировать
 
-    //// остановился на: 
+    //// остановился на: 3. Вроде как русифицировал функции и до ИНДЕКСАЦИИ
 
     time_t now = time(0); // текущая дата/время, основанные на текущей системе <ctime>
     struct tm *ltm = localtime(&now);
@@ -95,6 +99,7 @@ int main()
     if (file1.is_open())
     {
         char buf;
+        Set1251();
         for (int i{}, a{}; i < n; i++)
         {
             file1 >> buf;
@@ -126,6 +131,7 @@ int main()
                 file2 >> buffer0;
                 file2 >> buffer1;
                 file2 >> remainds[k];
+                Set65001();
                 cout << " " << buffer0 << "-" << remainds[k] << "." << endl;
             }
             if (buffer0 == "/")
@@ -631,7 +637,7 @@ int main()
                 if (change == "y" || change == "Y")
                 {
                     cout << "  Enter limit on day\n"; // для ввода лимита
-                    quest = checkNumber();                     // для ввода лимита
+                    quest = checkNumber();            // для ввода лимита
 
                     bool flag = false;
                     fstream limit1;
@@ -880,7 +886,8 @@ int main()
                 cout << "\n\n";
             }
             functions(j, m);
-            cout << "        To exit, press   (11)\n\n";
+            Set65001();
+            cout << "        Для выхода из программы  (11)\n\n";
         }
     }
 
@@ -893,107 +900,110 @@ int main()
 
 void nowData(int w, int d, int m, int y)
 { // отображение текущей даты
-    cout << "\n - Today ";
+    cout << "\n -   Сегодня ";
     switch (w)
     {
     case 1:
-        cout << "mon";
+        cout << "пн";
         break;
     case 2:
-        cout << "tue";
+        cout << "вт";
         break;
     case 3:
-        cout << "wed";
+        cout << "ср";
         break;
     case 4:
-        cout << "thu";
+        cout << "чт";
         break;
     case 5:
-        cout << "fri";
+        cout << "пт";
         break;
     case 6:
-        cout << "sat";
+        cout << "сб";
         break;
     case 7:
-        cout << "sun";
+        cout << "вс";
         break;
     }
-    cout << "." << d << "." << m << "." << y << ". -\n\n";
+    cout << "." << d << "." << m << "." << y << "г.   -\n\n";
 }
 
 void nowData(int d, int m, int y)
 { // отображение текущей даты (без дня недели)
-    cout << "\n - Today ";
-    cout << "." << d << "." << m << "." << y << ". -\n";
+    cout << "\n -    Сегодня ";
+    cout << "." << d << "." << m << "." << y << "г.    -\n";
 }
 
 void allFunctions(int j, int const m)
 {
+    Set65001();
     /*_*/ if (j > 0)
-        cout << "        Update data       (1)\n";
+        cout << "        Обновить данные           (1)\n";
     /*_*/ if (j > 0)
-        cout << "        Add income        (2)\n";
+        cout << "        Добавить доход            (2)\n";
     /*_*/ if (j > 0)
-        cout << "        Add purchase      (3)\n";
+        cout << "        Добавить расход           (3)\n";
     /*_*/ if (j > 0)
-        cout << "        Balance at limit  (4)\n";
+        cout << "        Баланс по лимиту          (4)\n";
     /*_*/ if (j > 0)
-        cout << "        On next montn     (5)\n";
+        cout << "        До следующего месяца      (5)\n";
     /*_*/ if (j > 0)
-        cout << "        Total debt        (6)\n";
+        cout << "        Общая задолженность       (6)\n";
     /*_*/ if (j > 0)
-        cout << "        ---------------------\n";
+        cout << "        -----------------------------\n";
     /*_*/ if (j < m)
-        cout << "        Add source        (7)\n";
+        cout << "        Добавить карту           (7)\n";
     /*_*/ if (j > 0)
-        cout << "        Delete source     (8)\n";
+        cout << "        Удалить карту             (8)\n";
     /*_*/ if (j > 0)
-        cout << "        Update card limit (9)\n";
+        cout << "        Изменить лимит карты      (9)\n";
     /*_*/ if (j > 0)
-        cout << "        ---------------------\n";
+        cout << "        -----------------------------\n";
     LONG check = RegGetValueA(HKEY_CURRENT_USER,
                               "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", "d-clutch",
                               RRF_RT_REG_SZ, 0, 0, 0);
     if (check == 0)
-        cout << "        Delete autorun   (10)\n";
+         cout << "        Удалить из автозагрузки (10)\n";
     if (check == 2)
-        cout << "        Autorun          (10)\n";
-    /*___________*/ cout << "        Manual      (press 0)\n";
+         cout << "        Автозагрузка            (10)\n";
+    /**/ cout << "        Инструкция         (press 0)\n";
 }
 
 void functions(int j, int const m)
 {
+    Set65001();
     /*_*/ if (j > 0)
-        cout << "        Update data       (1)\n";
+        cout << "        Обновить данные           (1)\n";
     /*_*/ if (j > 0)
-        cout << "        Add income        (2)\n";
+        cout << "        Добавить доход            (2)\n";
     /*_*/ if (j > 0)
-        cout << "        Add purchase      (3)\n";
+        cout << "        Добавить расход           (3)\n";
     /*_*/ if (j > 0)
-        cout << "        Balance at limit  (4)\n";
+        cout << "        Баланс по лимиту          (4)\n";
     /*_*/ if (j > 0)
-        cout << "        On next montn     (5)\n";
+        cout << "        До следующего месяца      (5)\n";
     /*_*/ if (j > 0)
-        cout << "        Total debt        (6)\n";
+        cout << "        Общая задолженность       (6)\n";
     /*_*/ if (j > 0)
-        cout << "        ---------------------\n";
+        cout << "        -----------------------------\n";
     /*_*/ if (j < m)
-        cout << "        Add source        (7)\n";
+        cout << "        Добавить карту            (7)\n";
     /*_*/ if (j > 0)
-        cout << "        Delete source     (8)\n";
+        cout << "        Удалить карту             (8)\n";
     /*_*/ if (j > 0)
-        cout << "        Update card limit (9)\n";
+        cout << "        Изменить лимит карты      (9)\n";
 }
 
 void totally(int total, int month, string FP)
 {
     string buff[4];
     ifstream file9(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::in);
+    Set1251();
     for (int i{}; i < 4; i++)
         file9 >> buff[i];
     file9.close();
-
-    cout << "\n\n  TOTAL on " << buff[1] << "." << buff[2] << "." << buff[3]
+    Set65001();
+    cout << "\n\n  ИТОГ на " << buff[1] << "." << buff[2] << "." << buff[3]
          << " = " << total << ". ";
     // дата посл.ввода
     struct tm a = {0, 0, 0, stoi(buff[1]), stoi(buff[2]) - 1, 101, 0, 0, 0};
@@ -1003,9 +1013,9 @@ void totally(int total, int month, string FP)
     time_t summer = mktime(&c);
 
     if (x != (time_t)(-1) && summer != (time_t)(-1) && summer != x)
-        cout << floor(total / (difftime(summer, x) / (60 * 60 * 24))) << " ru./day.\n\n\n";
+        cout << floor(total / (difftime(summer, x) / (60 * 60 * 24))) << " руб./день.\n\n\n";
     if (x != (time_t)(-1) && summer != (time_t)(-1) && summer == x)
-        cout << total << " ru./day.\n\n\n";
+        cout << total << " руб./день.\n\n\n";
 }
 
 void changeCardValue(string FP, string *events, int j, bool plusminus)
@@ -1017,16 +1027,17 @@ void changeCardValue(string FP, string *events, int j, bool plusminus)
     string buff[3210];
     string buffer[3210];
     // отображение карт
-    cout << "\n  Change value on:\n\n";
+    Set65001();
+    cout << "\n  Изменить значение на:\n\n";
     for (int i = 1; i <= j; i++)
-        cout << "  " << events[i] << "  (press " << i << ")" << "\n";
+        cout << "  " << events[i] << "  (нажмите " << i << ")" << "\n";
     // выбор карты
     quest = checkNumber();
     // ввод нового расхода
     if (plusminus == true)
-        cout << "\n  Enter new income:\n";
+        cout << "\n  Добавить новый доход:\n";
     if (plusminus == false)
-        cout << "\n  Enter new purchase:\n";
+        cout << "\n  Добавить новый расход:\n";
     value = checkNumber();
     // загрузка текстовика в буфер
     if (quest > 0 && quest <= j)
@@ -1069,7 +1080,7 @@ void changeCardValue(string FP, string *events, int j, bool plusminus)
         }
         purchaseFile1.close();
     }
-    cout << "\nNow value: " << newValue << "\n";
+    cout << "\n  Новое значение: " << newValue << "\n";
 }
 
 void autorun(int tog)
@@ -1107,16 +1118,18 @@ int checkDigit()
     int number;
     while (true)
     {
+        Set1251();
         cin >> number;
         if (cin.fail())
         { // Если ввод не удался (например, ввели буквы)
-            cout << "Please enter an integer.\n";
+            Set65001();
+            cout << "Введите число.\n";
             cin.clear();                                                     // Сброс флага ошибки
             cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n'); // Очистка буфера
         }
         else if (number < 0 || number > 11)
         { // Проверка диапазона
-            cout << "Number must be between 0 and 10.\n";
+            cout << "Число должно быть от 0 до 11.\n";
         }
         else
         {
@@ -1134,7 +1147,8 @@ int checkNumber()
         cin >> number;
         if (cin.fail())
         { // Если ввод не удался (например, ввели буквы)
-            cout << "Please enter an integer.\n";
+            Set65001();
+            cout << "Введите число.\n";
             cin.clear();                                                     // Сброс флага ошибки
             cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n'); // Очистка буфера
         }
@@ -1161,18 +1175,21 @@ string checkString()
     string input;
     while (true)
     {
+        Set1251();
         getline(cin, input);
         // Проверка на пустую строку
         if (input.empty())
         {
-            cout << "Input cannot be empty\n";
+            Set65001();
+            cout << "Ввод не должен быть пустым\n";
             continue;
         }
         // Проверка на запрещённые символы
         if (checkStringContains(input))
         {
-            cout << "Input cannot contain spaces or ; - / | *\n";
-            cout << "Please try again\n";
+            Set65001();
+            cout << "Не используйте пробел и символы ; - / | *\n";
+            cout << "Попробуйте ещё раз\n";
             continue;
         }
         // Если все проверки пройдены
@@ -1277,4 +1294,15 @@ void manual(string FP)
     }
     else
         cout << "\nmanualFiles error\n\n";
+}
+
+void Set65001()
+{
+    SetConsoleOutputCP(65001);
+    SetConsoleCP(65001);
+}
+void Set1251()
+{
+    SetConsoleOutputCP(1251);
+    SetConsoleCP(1251);
 }
