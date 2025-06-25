@@ -26,7 +26,7 @@ void nowData(int d, int m, int y);
 void allFunctions(int j, int const m);
 void functions(int j, int const m);
 void totally(int total, int month, string FP);
-void changeCardValue(string FP, string *arr, int j, bool plusminus);
+void changeCardValue(string FP, string *arr, int j, bool plusminus, int day, int month, int year);
 void autorun(int tog);
 void manual(string FP);
 int checkDigit();
@@ -52,10 +52,12 @@ int main()
     cout << "\n ---     d-clutch     ---\n";
 
     /// 0. добавить иконку
-    /// 1. Тесты K
-    /// 2. Русифицировать (попробовать переопределение операторов ввода в вывода)
+    /// 1. Придумать защиту
+    /// 2. Тесты K
+    /// 3. Русифицировать
+    /// 4. Добавить обновление и тотал в доход\расход
 
-    //// остановился на: 
+    //// остановился на: 4. (не работает обновление суммы стр 1140)
 
     time_t now = time(0); // текущая дата/время, основанные на текущей системе <ctime>
     struct tm *ltm = localtime(&now);
@@ -116,7 +118,7 @@ int main()
     if (file2.is_open())
     {
         string buffer0;
-        string buffer1;
+        // string buffer1;
         int k = j;
         for (int i{}; i < n; i++)
         {
@@ -124,7 +126,7 @@ int main()
             if (buffer0 == "|")
             {
                 file2 >> buffer0;
-                file2 >> buffer1;
+                file2 >> buffer0;
                 file2 >> remainds[k];
                 cout << " " << buffer0 << "-" << remainds[k] << "." << endl;
             }
@@ -330,14 +332,23 @@ int main()
             else if (j > 0 && question == 2)
             {
                 plusminus = true;
-                changeCardValue(FP, events, j, plusminus);
+                changeCardValue(FP, events, j, plusminus, day, month, year);
+
+                //_________________________________________________________
+
+                // total = 0;
+                // for (int i = 1; i <= j; i++) // подсчёт общего остатка
+                // total += atoi(remainds[i].c_str());
+                // totally(total, month, FP);
+
+                //_________________________________________________________
             }
 
             // ДОБАВЛЕНИЕ ЕДИНИЧНОГО РАСХОДА(ПОКУПКИ) (функция "Add purchase")
             else if (j > 0 && question == 3)
             {
                 plusminus = false;
-                changeCardValue(FP, events, j, plusminus);
+                changeCardValue(FP, events, j, plusminus, day, month, year);
             }
 
             // СОЗДАНИЕ
@@ -631,7 +642,7 @@ int main()
                 if (change == "y" || change == "Y")
                 {
                     cout << "  Enter limit on day\n"; // для ввода лимита
-                    quest = checkNumber();                     // для ввода лимита
+                    quest = checkNumber();            // для ввода лимита
 
                     bool flag = false;
                     fstream limit1;
@@ -1008,13 +1019,15 @@ void totally(int total, int month, string FP)
         cout << total << " ru./day.\n\n\n";
 }
 
-void changeCardValue(string FP, string *events, int j, bool plusminus)
+void changeCardValue(string FP, string *events, int j, bool plusminus, int day, int month, int year)
 {
     int k{};
     int quest{};
     int value{};
     int newValue{};
+    int total{};
     string buff[3210];
+    string buff0[3210];
     string buffer[3210];
     // отображение карт
     cout << "\n  Change value on:\n\n";
@@ -1031,45 +1044,129 @@ void changeCardValue(string FP, string *events, int j, bool plusminus)
     // загрузка текстовика в буфер
     if (quest > 0 && quest <= j)
     {
-        ifstream purchaseFile(fs::path(FP).replace_filename("d-clutch_data.txt"));
-        for (int i{}; purchaseFile; i++)
+        ifstream changeCardFile0(fs::path(FP).replace_filename("d-clutch_data.txt"));
+        for (int i = 1; changeCardFile0; i++)
         {
-            purchaseFile >> buff[i];
+            changeCardFile0 >> buff[i];
             buff[i] += " ";
             k++;
         }
-        purchaseFile.close();
-        // // перезапись нового значения
-        ofstream purchaseFile1(fs::path(FP).replace_filename("d-clutch_data.txt"));
+        changeCardFile0.close();
+
+        // считывание даты в buff0
+        ifstream changeCardFile(fs::path(FP).replace_filename("d-clutch_data.txt"), ios::in);
+        for (int i{}; i < 4; i++)
+            changeCardFile >> buff0[i];
+        changeCardFile.close();
+
+        // перезапись нового значения
+        // если обновление данных происходило сегодня, то файл ПЕРЕписывается
         bool flag = true;
-        for (int i{}; i < k; i++)
+        if (day == stoi(buff0[1]) && month == stoi(buff0[2]) && year == stoi(buff0[3]))
         {
-            if (buff[i] == events[quest] + " " && flag == true)
+            ofstream changeCardFile01(fs::path(FP).replace_filename("d-clutch_data.txt"));
+            for (int i = 1; i <= k; i++)
             {
-                if (plusminus == true)
+                if (buff[i] == events[quest] + " " && flag == true)
                 {
-                    newValue = (value) + stoi(buff[i + 2]);
-                    buff[i + 2] = to_string((value) + stoi(buff[i + 2]));
+                    if (plusminus == true)
+                    {
+                        newValue = (value) + stoi(buff[i + 2]);
+                        buff[i + 2] = to_string((value) + stoi(buff[i + 2]));
+                    }
+                    if (plusminus == false)
+                    {
+                        newValue = (value - value * 2) + stoi(buff[i + 2]);
+                        buff[i + 2] = to_string((value - value * 2) + stoi(buff[i + 2]));
+                    }
+                    changeCardFile01 << buff[i];
+                    changeCardFile01 << buff[i + 1];
+                    changeCardFile01 << buff[i + 2] << " ";
+                    flag = false;
+                    i += 2;
                 }
-                if (plusminus == false)
-                {
-                    newValue = (value - value * 2) + stoi(buff[i + 2]);
-                    buff[i + 2] = to_string((value - value * 2) + stoi(buff[i + 2]));
-                }
-                purchaseFile1 << buff[i];
-                purchaseFile1 << buff[i + 1];
-                purchaseFile1 << buff[i + 2] << " ";
-                flag = false;
-                i += 2;
+                else
+                    changeCardFile01 << buff[i];
+                if (buff[i] == "; ")
+                    changeCardFile01 << "\n\n";
             }
-            else
-                purchaseFile1 << buff[i];
-            if (buff[i] == "; ")
-                purchaseFile1 << "\n\n";
+            changeCardFile01.close();
         }
-        purchaseFile1.close();
+        // если обновление данных происходило НЕ сегодня, то файл ДОписывается
+        else
+        {
+            // добавление заголовка о дате и тотале в buff
+            buff[0] = "Date " + to_string(day) + " " + to_string(month) + " " + to_string(year) + "  -  " + to_string(total) + " ru";
+            ofstream changeCardFile02(fs::path(FP).replace_filename("d-clutch_data.txt"));
+            flag = true;
+            for (int i{}; i <= k; i++)
+            {
+                if (buff[i] == events[quest] + " " && flag == true)
+                {
+                    if (plusminus == true)
+                    {
+                        newValue = (value) + stoi(buff[i + 2]);
+                        buff[i + 2] = to_string((value) + stoi(buff[i + 2]));
+                    }
+                    if (plusminus == false)
+                    {
+                        newValue = (value - value * 2) + stoi(buff[i + 2]);
+                        buff[i + 2] = to_string((value - value * 2) + stoi(buff[i + 2]));
+                    }
+                    changeCardFile02 << buff[i];
+                    changeCardFile02 << buff[i + 1];
+                    changeCardFile02 << buff[i + 2] << " ";
+                    flag = false;
+                    i += 2;
+                }
+                else
+                    changeCardFile02 << buff[i];
+                if (buff[i] == "; ")
+                    changeCardFile02 << "\n\n";
+            }
+            changeCardFile02.close();
+        }
     }
-    cout << "\nNow value: " << newValue << "\n";
+
+    // подсчёт нового тотала
+    string remainds[99];
+    string buffer0;
+    // string buffer1;
+    ifstream changeCardFile03;
+    changeCardFile03.open(fs::path(FP).replace_filename("d-clutch_data.txt"));
+    if (changeCardFile03.is_open())
+    {
+        int k = 1;
+        for (int i{}; i < 3210; i++)
+        {
+            changeCardFile03 >> buffer0;
+            if (buffer0 == "|" && k != quest)
+            {
+                changeCardFile03 >> buffer0;
+                changeCardFile03 >> buffer0;
+                changeCardFile03 >> remainds[k];
+                k++;
+            }
+            if (buffer0 == "|" && k == quest)
+            {
+                remainds[k] = newValue;
+                k++;
+            }
+            if (buffer0 == ";")
+                break;
+        }
+        changeCardFile03.close();
+
+        cout << "\n  Now value: " << newValue << "\n";
+
+        // total = 0;
+        for (int i = 1; i <= j; i++)
+        { // подсчёт общего остатка
+            total += atoi(remainds[i].c_str());
+            cout << "total now = " << total << "\n";
+        }
+        totally(total, month, FP);
+    }
 }
 
 void autorun(int tog)
