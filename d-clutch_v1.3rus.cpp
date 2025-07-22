@@ -196,7 +196,7 @@ int main()
             question = checkDigit();
 
             // ИНСТРУКЦИЯ
-            if (i > 0 && question == 0)
+            if (i >= 0 && question == 0)
                 manual(dCluthcPath);
 
             // ОБНОВЛЕНИЕ ДАННЫХ
@@ -823,7 +823,7 @@ int main()
                 cout << "  Баланс в конце месяца (лимит "
                      << quest << " руб) = " << answ << " руб.\n\n";
 
-                if (buff2->empty() == 0)
+                if (buff2[1].empty() == false)
                 {
                     // дата посл.ввода
                     a = {0, 0, 0, stoi(buff2[0]), stoi(buff2[1]) - 1, 101, 0, 0, 0};
