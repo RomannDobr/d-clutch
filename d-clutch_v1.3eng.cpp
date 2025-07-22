@@ -189,7 +189,7 @@ int main()
             question = checkDigit();
 
             // ИНСТРУКЦИЯ
-            if (i > 0 && question == 0)
+            if (i >= 0 && question == 0)
                 manual(dCluthcPath);
 
             // ОБНОВЛЕНИЕ ДАННЫХ
@@ -770,7 +770,7 @@ int main()
                 cout << "  The balance at the end of the month (limit "
                      << quest << " ru) = " << answ << " ru.\n\n";
 
-                if (buff2->empty() == 0)
+                if (buff2[1].empty() == false)
                 {
                     // дата посл.ввода
                     a = {0, 0, 0, stoi(buff2[0]), stoi(buff2[1]) - 1, 101, 0, 0, 0};
@@ -1262,7 +1262,7 @@ int checkDigit()
         }
         else if (number < 0 || number > 11)
         { // Проверка диапазона
-            cout << "Number must be between 0 and 10.\n";
+            cout << "Number must be between 0 and 11.\n";
         }
         else
         {
