@@ -64,7 +64,7 @@ int main()
     // пользователь переназывает д-клатч. Это название берётся и используется для txt и manual
     // cout << "\n>> " << fs::path(dCluthcPath).filename() << " <<\n";
 
-    //// остановился на: 
+    //// остановился на:
 
     time_t now = time(0); // текущая дата/время, основанные на текущей системе <ctime>
     struct tm *ltm = localtime(&now);
@@ -576,7 +576,8 @@ int main()
                             if (buffer0 == ";")
                                 break;
                         }
-                        for (int i{}; i < k; i++) // подсчёт общего остатка
+                        // подсчёт общего остатка
+                        for (int i{}; i < k; i++)
                             total += atoi(remainds[i].c_str());
                         delfiles2.close();
                     }
@@ -778,7 +779,6 @@ int main()
                     cout << "\nОшибка открытия файла file8\n\n";
                 }
                 // дата посл.ввода
-
                 ifstream file88;
                 file88.open(fs::path(dCluthcPath).replace_filename("d-clutch_data.txt"));
                 if (file88.is_open())
@@ -1490,7 +1490,7 @@ void manual(string dCluthcPath)
         }
     }
     else
-        cout << "\nmanualFiles error\n\n";
+        cout << "\nошибка при создании manualFiles\n\n";
 }
 
 bool fileExists(const string &filename)
