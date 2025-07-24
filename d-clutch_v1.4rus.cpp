@@ -1,4 +1,4 @@
-// d-clutch v1.4rus
+// d-clutch_v1.4rus
 //
 // консольное приложение для учета финансов на банковских картах
 
@@ -37,8 +37,6 @@ string checkString();
 void Set65001();
 void Set1251();
 
-// const string filename = generalName;
-
 int main()
 {
     setlocale(LC_ALL, "RU");
@@ -62,10 +60,9 @@ int main()
     // вынести в функцию remainds -- total
     // добавить точки при отображении больших чисел
     // неправильно считает баланс по лимиту и экономи/расход, если считать сразу
-    /// 2. синхронизировать с анг
-    /// 3. гит гитхаб
+    /// 2. ввести день зарплаты
 
-    //// остановился на: 3
+    //// остановился на:
 
     time_t now = time(0); // текущая дата/время, основанные на текущей системе <ctime>
     struct tm *ltm = localtime(&now);
@@ -96,6 +93,7 @@ int main()
     string dCluthcPath = string(getFileName, GetModuleFileNameA(NULL, getFileName, MAX_PATH));
 
     //   cout << "\n15:30\n"; // для тестов
+
     fs::path getName = fs::path(dCluthcPath).stem();
     string generalName = getName.generic_string();
     
@@ -206,10 +204,7 @@ int main()
 
             // ИНСТРУКЦИЯ
             if (i >= 0 && question == 0)
-            {
                 manual(dCluthcPath, generalName);
-                // functions(j);
-            }
 
             // ОБНОВЛЕНИЕ ДАННЫХ
             else if (j > 0 && question == 1)

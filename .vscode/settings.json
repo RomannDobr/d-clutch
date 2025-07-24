@@ -4,6 +4,7 @@
         "iosfwd": "cpp",
         "fstream": "cpp",
         "xlocmes": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "filesystem": "cpp"
     }
 }
