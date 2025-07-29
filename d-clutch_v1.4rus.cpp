@@ -21,18 +21,19 @@
 using namespace std;
 namespace fs = std::filesystem;
 
-void nowData(int w, int d, int m, int y);
-void nowData(int d, int m, int y);
-void allFunctions(int j, int const m);
-void functions(int j);
-void totally(int total, int month, string dCluthcPath, string generalName);
-void changeCardValue(string dCluthcPath, string *events, int j, bool plusminus, int day, int month, int year, string generalName);
-void autorun(int tog);
-void manual(string dCluthcPath, string generalName);
+void nowData(int, int, int, int);
+void nowData(int, int, int);
+void nowData(int, int);
+void allFunctions(int, int const);
+void functions(int);
+void totally(int, int, int, string, string);
+void changeCardValue(string, string *, int, bool, int, int, int, int, string);
+void autorun(int);
+void manual(string, string);
 int checkDigit();
 int checkNumber();
-bool checkStringContains(const string &str);
-bool fileExists(const string &filename);
+bool checkStringContains(const string &);
+bool fileExists(const string &);
 string checkString();
 void Set65001();
 void Set1251();
@@ -62,7 +63,7 @@ int main()
     // неправильно считает баланс по лимиту и экономи/расход, если считать сразу
     /// 2. ввести день зарплаты
 
-    //// остановился на:
+    //// остановился на: 2. Изменить функцию 4 (для добавления лимита, дня зарплаты и подсчёта экономии)
 
     time_t now = time(0); // текущая дата/время, основанные на текущей системе <ctime>
     struct tm *ltm = localtime(&now);
@@ -75,6 +76,7 @@ int main()
     const int *n = new const int{3210}; // просто здоровое число для счётчиков
     const int *m = new const int{99};
     int question = 123; // 0 занят
+    int payday = 1;
     int remaind = 0;
     int limit = 0;
     int total = 0;
@@ -96,7 +98,7 @@ int main()
 
     fs::path getName = fs::path(dCluthcPath).stem();
     string generalName = getName.generic_string();
-    
+
     if (generalName == "d-clutch_v1.4rus" && !fileExists(generalName + ".txt"))
     {
         cout << "\n Чтобы ваши персональные данные были скрытыми";
@@ -155,10 +157,35 @@ int main()
         file2.close();
     }
 
-    for (int i = 1; i <= j; i++) // подсчёт общего остатка
-        total += atoi(remainds[i].c_str());
-    if (j > 0)
-        totally(total, month, dCluthcPath, generalName);
+    { // получение сохранённого payday
+        string *buffernewPayday = new string;
+        ifstream paydayFile;
+        paydayFile.open(fs::path(dCluthcPath).replace_filename(generalName + ".txt"));
+        if (paydayFile.is_open())
+        {
+            Set1251();
+            for (int i{}; paydayFile; i++)
+            {
+                paydayFile >> *buffernewPayday;
+                if (*buffernewPayday == "**")
+                {
+                    paydayFile >> payday;
+                    // cout << "\n\n>> " << payday << "\n\n";
+                    break;
+                }
+            }
+            paydayFile.close();
+        }
+
+        delete buffernewPayday;
+    }
+
+    { // подсчёт общего остатка
+        for (int i = 1; i <= j; i++)
+            total += atoi(remainds[i].c_str());
+        if (j > 0)
+            totally(total, payday, month, dCluthcPath, generalName);
+    }
 
     // ИНДЕКСАЦИЯ СОБЫТИЙ
     ifstream file3;
@@ -303,7 +330,7 @@ int main()
                     for (int i = 1; i <= j; i++)
                         total += newData[i];
                     if (j > 0)
-                        totally(total, month, dCluthcPath, generalName);
+                        totally(total, payday, month, dCluthcPath, generalName);
                 }
                 // если обновление данных происходило НЕ сегодня, то файл ДОписывается
                 else
@@ -346,7 +373,7 @@ int main()
                     for (int i = 1; i <= j; i++)
                         total += newData[i];
                     if (j > 0)
-                        totally(total, month, dCluthcPath, generalName);
+                        totally(total, payday, month, dCluthcPath, generalName);
                 }
                 delete[] buff;
                 delete[] buffer;
@@ -358,14 +385,14 @@ int main()
             else if (j > 0 && question == 2)
             {
                 plusminus = true;
-                changeCardValue(dCluthcPath, events, j, plusminus, day, month, year, generalName);
+                changeCardValue(dCluthcPath, events, j, plusminus, day, month, year, payday, generalName);
             }
 
             // ДОБАВЛЕНИЕ ЕДИНИЧНОГО РАСХОДА(ПОКУПКИ) (функция "Добавить расход")
             else if (j > 0 && question == 3)
             {
                 plusminus = false;
-                changeCardValue(dCluthcPath, events, j, plusminus, day, month, year, generalName);
+                changeCardValue(dCluthcPath, events, j, plusminus, day, month, year, payday, generalName);
             }
 
             // СОЗДАНИЕ
@@ -509,7 +536,7 @@ int main()
                     cout << "\nОшибка открытия файла name2\n\n";
                 }
 
-                totally(total, month, dCluthcPath, generalName);
+                totally(total, payday, month, dCluthcPath, generalName);
                 j = 1;
 
                 delete[] buff;
@@ -594,7 +621,7 @@ int main()
                         cout << "\nОшибка открытия файла delfiles2\n\n";
                     }
 
-                    totally(total, month, dCluthcPath, generalName);
+                    totally(total, payday, month, dCluthcPath, generalName);
                     j = 1;
 
                     delete[] buff;
@@ -621,7 +648,9 @@ int main()
                 string buffer0;
                 total = 0;
                 Set65001();
-                cout << "\n  До следующего месяца - ";
+                cout << "\n  До ";
+                nowData(payday, month + 2);
+                cout << ": ";
 
                 ifstream onNextMonth;
                 onNextMonth.open(fs::path(dCluthcPath).replace_filename(generalName + ".txt"));
@@ -648,12 +677,12 @@ int main()
                 if (x != (time_t)(-1) && y != (time_t)(-1))
                     Set65001();
                 cout << floor(total / (difftime(y, x) / (60 * 60 * 24)))
-                     << " руб./день.\n\n\n";
+                     << " руб./день.\n\n";
 
                 if (x != (time_t)(-1) && y != (time_t)(-1))
                     answ = total - (difftime(y, x) / (60 * 60 * 24)) * quest;
-                cout << "  Баланс в конце месяца (лимит "
-                     << quest << " руб) = " << answ << " руб.\n\n";
+                cout << "  Баланс к этому дню (лимит "
+                     << quest << " руб) = " << answ << " руб.\n\n\n";
             }
 
             // ПЕРЕСЧЁТ НА КОЛ-ВО ДНЕЙ ИСХОДЯ ИЗ ЗАДАННОГО ЛИМИТА (функция "Баланс по лимиту")
@@ -1047,6 +1076,50 @@ void nowData(int w, int d, int m, int y)
     cout << "." << d << "." << m << "." << y << "г.   -\n\n";
 }
 
+void nowData(int d, int m)
+{ // отображение текущей даты (только число и месяц)
+    cout << d;
+    switch (m)
+    {
+    case 1:
+        cout << " января";
+        break;
+    case 2:
+        cout << " февраля";
+        break;
+    case 3:
+        cout << " марта";
+        break;
+    case 4:
+        cout << " апреля";
+        break;
+    case 5:
+        cout << " мая";
+        break;
+    case 6:
+        cout << " июня";
+        break;
+    case 7:
+        cout << " июля";
+        break;
+    case 8:
+        cout << " августа";
+        break;
+    case 9:
+        cout << " сентября";
+        break;
+    case 10:
+        cout << " октября";
+        break;
+    case 11:
+        cout << " ноября";
+        break;
+    case 12:
+        cout << " декабря";
+        break;
+    }
+}
+
 void nowData(int d, int m, int y)
 { // отображение текущей даты (без дня недели)
     cout << "\n -    Сегодня ";
@@ -1099,31 +1172,71 @@ void functions(int j)
     }
 }
 
-void totally(int total, int month, string dCluthcPath, string generalName)
+void totally(int total, int payday, int month, string dCluthcPath, string generalName)
 {
+    int quest{1000};
+    int answ{};
     string buff[4];
-    ifstream file9(fs::path(dCluthcPath).replace_filename(generalName + ".txt"), ios::in);
-    Set1251();
-    for (int i{}; i < 4; i++)
-        file9 >> buff[i];
-    file9.close();
+    string *buffer0 = new string;
+
+    // определение сохранённого пользовательского лимита
+    ifstream totallyQuestFile;
+    totallyQuestFile.open(fs::path(dCluthcPath).replace_filename(generalName + ".txt"));
+    if (totallyQuestFile.is_open())
+    {
+        Set1251();
+        for (int i{}; totallyQuestFile; i++)
+        {
+            totallyQuestFile >> *buffer0;
+            if (*buffer0 == "*")
+            {
+                totallyQuestFile >> quest;
+                break;
+            }
+        }
+        totallyQuestFile.close();
+    }
+
+    ifstream totallyQuestFile1;
+    totallyQuestFile1.open(fs::path(dCluthcPath).replace_filename(generalName + ".txt"));
+    if (totallyQuestFile1.is_open())
+    {
+        Set1251();
+        for (int i{}; i < 4; i++)
+            totallyQuestFile1 >> buff[i];
+        totallyQuestFile1.close();
+    }
+    else
+    {
+        Set65001();
+        cout << "\nОшибка открытия файла totallyQuestFile1\n\n";
+    }
     Set65001();
     cout << "\n\n  ИТОГ на " << buff[1] << "." << buff[2] << "." << buff[3]
-         << " = " << total << ". ";
+         << " = " << total << ". До зарплаты (";
+    nowData(payday, month + 1);
+    cout << "): ";
     // дата посл.ввода
     struct tm a = {0, 0, 0, stoi(buff[1]), stoi(buff[2]) - 1, 101, 0, 0, 0};
     time_t x = mktime(&a);
     // пересчёт на дни
-    struct tm c = {0, 0, 0, 0, month, 101, 0, 0, 0};
-    time_t summer = mktime(&c);
+    struct tm c = {0, 0, 0, payday, month, 101, 0, 0, 0};
+    time_t y = mktime(&c);
 
-    if (x != (time_t)(-1) && summer != (time_t)(-1) && summer != x)
-        cout << floor(total / (difftime(summer, x) / (60 * 60 * 24))) << " руб./день.\n\n\n";
-    if (x != (time_t)(-1) && summer != (time_t)(-1) && summer == x)
-        cout << total << " руб./день.\n\n\n";
+    if (x != (time_t)(-1) && y != (time_t)(-1) && y != x)
+        cout << floor(total / (difftime(y, x) / (60 * 60 * 24))) << " руб./день.\n\n";
+    if (x != (time_t)(-1) && y != (time_t)(-1) && y == x)
+        cout << total << " руб./день.\n\n";
+
+    if (x != (time_t)(-1) && y != (time_t)(-1))
+        answ = total - (difftime(y, x) / (60 * 60 * 24)) * quest;
+    cout << "  Баланс на день зарплаты (если соблюдать лимит "
+         << quest << " руб) = " << answ << " руб.\n\n\n";
+
+    delete buffer0;
 }
 
-void changeCardValue(string dCluthcPath, string *events, int j, bool plusminus, int day, int month, int year, string generalName)
+void changeCardValue(string dCluthcPath, string *events, int j, bool plusminus, int day, int month, int year, int payday, string generalName)
 {
     int k{};
     const int *n = new const int{3210};
@@ -1266,7 +1379,7 @@ void changeCardValue(string dCluthcPath, string *events, int j, bool plusminus, 
                 changeCardFile02.close();
             }
         }
-        totally(total, month, dCluthcPath, generalName);
+        totally(total, payday, month, dCluthcPath, generalName);
     }
     delete[] buff;
     delete[] buff0;

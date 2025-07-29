@@ -6,6 +6,8 @@
         "iosfwd": "cpp",
         "string": "cpp",
         "chrono": "cpp",
-        "sstream": "cpp"
+        "sstream": "cpp",
+        "fstream": "cpp",
+        "xlocmes": "cpp"
     }
 }
