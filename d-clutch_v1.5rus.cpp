@@ -39,6 +39,25 @@ int getDataFromFile(string, int);
 void Set65001();
 void Set1251();
 
+void dividingPoints(int value)
+{
+    if (value >= 1000 && value <= 1000000)
+        cout << value / 1000 << "'" << value - ((value / 1000) * 1000);
+    if (value >= 1000000 && value <= 1000000000)
+    {
+        cout << value / 1000000 << "'" << (value - ((value / 1000000) * 1000000)) / 1000;
+        cout << "'" << value - ((value / 1000) * 1000);
+    }
+    if (value >= 1000000000)
+    {
+        cout << value / 1000000000 << "'" << (value - ((value / 1000000000) * 1000000000)) / 1000000;
+        cout << "'" << (value - ((value / 1000000) * 1000000)) / 1000;
+        cout << "'" << value - ((value / 1000) * 1000);
+    }
+    if (value < 1000)
+        cout << value;
+}
+
 char *getFileName = new char[MAX_PATH]{};
 string dCluthcPath = string(getFileName, GetModuleFileNameA(NULL, getFileName, MAX_PATH));
 fs::path getName = fs::path(dCluthcPath).stem();
@@ -64,14 +83,12 @@ int main()
     Set65001();
     cout << "\n ---        d-clutch        ---\n";
 
-    /// 0. добавить иконку
     /// 1. Оптимизировать код
     // вынести в функцию remainds -- total
-    // добавить точки при отображении больших чисел
-    // неправильно считает баланс по лимиту и экономи/расход, если считать сразу
-    /// 2. Синхронизировать с eng
+    /// 2. Неправильно считает баланс по лимиту и экономи/расход, если считать сразу
+    /// 3. Добавить точки при отображении больших чисел
 
-    //// остановился на: 2
+    //// остановился на: 3 (если число круглое, то пишет 0 вместо 000) void dividingPoints
 
     time_t now = time(0); // текущая дата/время, основанные на текущей системе <ctime>
     struct tm *ltm = localtime(&now);
@@ -147,7 +164,9 @@ int main()
                 file2 >> buffer1;
                 file2 >> remainds[k];
                 Set1251();
-                cout << " " << buffer0 << "-" << remainds[k] << "." << endl;
+                cout << " " << buffer0 << "-";
+                dividingPoints(stoi(remainds[k]));
+                cout << "." << endl;
             }
             if (buffer0 == "/")
                 k--;
@@ -165,6 +184,10 @@ int main()
         if (j > 0)
             totally(total, payday, month);
     }
+
+    cout << "\n\n\n>>";
+    dividingPoints(total);
+    cout << "<<\n\n\n";
 
     // ИНДЕКСАЦИЯ СОБЫТИЙ
     ifstream file3;
@@ -1159,8 +1182,9 @@ void totally(int total, int payday, int month)
         cout << "\nОшибка открытия файла totallyQuestFile1\n\n";
     }
     Set65001();
-    cout << "\n\n  ИТОГ на " << buff[1] << "." << buff[2] << "." << buff[3]
-         << " = " << total << ". До зарплаты (";
+    cout << "\n\n  ИТОГ на " << buff[1] << "." << buff[2] << "." << buff[3] << " = ";
+    dividingPoints(total);
+    cout << ". До зарплаты (";
     nowData(payday, month + 1);
     cout << "): ";
     // дата посл.ввода
@@ -1177,8 +1201,11 @@ void totally(int total, int payday, int month)
 
     if (x != (time_t)(-1) && y != (time_t)(-1))
         answ = total - (difftime(y, x) / (60 * 60 * 24)) * quest;
-    cout << "  Баланс на день зарплаты (если соблюдать лимит "
-         << quest << " руб) = " << answ << " руб.\n\n";
+    cout << "  Баланс на день зарплаты (если соблюдать лимит ";
+    dividingPoints(quest);
+    cout << " руб) = ";
+    dividingPoints(answ);
+    cout <<" руб.\n\n";
 
     string *buf = new string{};
     string *buff2 = new string[5];
