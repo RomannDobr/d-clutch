@@ -5,6 +5,7 @@
         "fstream": "cpp",
         "xlocmes": "cpp",
         "iostream": "cpp",
-        "filesystem": "cpp"
+        "filesystem": "cpp",
+        "string": "cpp"
     }
 }

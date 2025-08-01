@@ -61,14 +61,12 @@ int main()
 
     cout << "\n ---     d-clutch     ---\n";
 
-    /// 0. добавить иконку
     /// 1. Оптимизировать код
     // вынести в функцию remainds -- total
-    // добавить точки при отображении больших чисел
-    // неправильно считает баланс по лимиту и экономи/расход, если считать сразу
-    /// 2. Синхронизировать с eng
+    /// 2. Добавить точки при отображении больших чисел
+    /// 3. Неправильно считает баланс по лимиту и экономи/расход, если считать сразу
 
-    //// остановился на: 2 void totally (сто 1085)
+    //// остановился на: 
 
     time_t now = time(0); // текущая дата/время, основанные на текущей системе <ctime>
     struct tm *ltm = localtime(&now);
@@ -942,7 +940,7 @@ int main()
                 delete[] buff;
             }
             functions(j);
-            cout << "        To exit, press   (11)\n\n";
+            cout << "        To exit, press        (11)\n\n";
         }
     }
 
@@ -1084,25 +1082,102 @@ void functions(int j)
 
 void totally(int total, int payday, int month)
 {
+    int quest{1000};
+    int answ{};
+    int diff{};
     string buff[4];
-    ifstream file9(fs::path(dCluthcPath).replace_filename(generalName + ".txt"), ios::in);
-    for (int i{}; i < 4; i++)
-        file9 >> buff[i];
-    file9.close();
+    string *buffer0 = new string;
 
+    quest = getDataFromFile("*", quest);
+
+    ifstream totallyQuestFile1;
+    totallyQuestFile1.open(fs::path(dCluthcPath).replace_filename(generalName + ".txt"));
+    if (totallyQuestFile1.is_open())
+    {
+        for (int i{}; i < 4; i++)
+            totallyQuestFile1 >> buff[i];
+        totallyQuestFile1.close();
+    }
+    else
+    {
+        cout << "\ntotallyQuestFile1 error\n\n";
+    }
     cout << "\n\n  TOTAL on " << buff[1] << "." << buff[2] << "." << buff[3]
-         << " = " << total << ". ";
+         << " = " << total << ". Before payday (";
+    nowData(payday, month + 1);
+    cout << "): ";
     // дата посл.ввода
     struct tm a = {0, 0, 0, stoi(buff[1]), stoi(buff[2]) - 1, 101, 0, 0, 0};
     time_t x = mktime(&a);
     // пересчёт на дни
-    struct tm c = {0, 0, 0, 0, month, 101, 0, 0, 0};
-    time_t summer = mktime(&c);
+    struct tm c = {0, 0, 0, payday, month, 101, 0, 0, 0};
+    time_t y = mktime(&c);
 
-    if (x != (time_t)(-1) && summer != (time_t)(-1) && summer != x)
-        cout << floor(total / (difftime(summer, x) / (60 * 60 * 24))) << " ru./day.\n\n\n";
-    if (x != (time_t)(-1) && summer != (time_t)(-1) && summer == x)
-        cout << total << " ru./day.\n\n\n";
+    if (x != (time_t)(-1) && y != (time_t)(-1) && y != x)
+        cout << floor(total / (difftime(y, x) / (60 * 60 * 24))) << " ru./day.\n\n";
+    if (x != (time_t)(-1) && y != (time_t)(-1) && y == x)
+        cout << total << " ru./day.\n\n";
+
+    if (x != (time_t)(-1) && y != (time_t)(-1))
+        answ = total - (difftime(y, x) / (60 * 60 * 24)) * quest;
+    cout << "  Balance on payday (if the limit is met "
+         << quest << " ru.) = " << answ << " ru.\n\n";
+
+    string *buf = new string{};
+    string *buff2 = new string[5];
+    string *bufer = new string[*m];
+    string *buff3 = new string[6];
+    ifstream file8(fs::path(dCluthcPath).replace_filename(generalName + ".txt"));
+    if (file8.is_open())
+    {
+        for (int i{}; i < 6; i++)
+            file8 >> buff3[i];
+        for (int i{}; i < *m; i++)
+            file8 >> bufer[i];
+        for (int i{}, l{}; i < *m; i++)
+        {
+            if (bufer[i] == ";")
+            {
+                buff2[l] = bufer[i + 2];
+                buff2[l + 1] = bufer[i + 3];
+                buff2[l + 2] = bufer[i + 4];
+                buff2[l + 3] = bufer[i + 6];
+                break;
+            }
+        }
+        file8.close();
+    }
+    else
+    {
+        cout << "\nfile8 error\n\n";
+    }
+
+    if (buff2[1].empty() == false)
+    {
+        // дата посл.ввода
+        a = {0, 0, 0, stoi(buff2[0]), stoi(buff2[1]) - 1, 101, 0, 0, 0};
+        x = mktime(&a);
+        // ожидаемая дата
+        struct tm b = {0, 0, 0, stoi(buff3[1]), stoi(buff3[2]) - 1, 101, 0, 0, 0};
+        y = mktime(&b);
+        if (x != (time_t)(-1) && y != (time_t)(-1))
+            diff = (stoi(buff2[3]) - total) - ((difftime(y, x) / (60 * 60 * 24)) * quest);
+        if (diff > 0)
+            cout << "  Overdraft from " << stoi(buff2[0]) << "."
+                 << stoi(buff2[1]) << "." << stoi(buff2[2])
+                 << " = " << diff << " ru.\n\n\n";
+        else if (diff < 0)
+            cout << "  Economy from " << stoi(buff2[0]) << "."
+                 << stoi(buff2[1]) << "." << stoi(buff2[2])
+                 << " = " << abs(diff) << " ru.\n\n\n";
+        else
+            cout << "  Expenses meet the limit.\n\n\n";
+    }
+    delete buf;
+    delete[] buff2;
+    delete[] buff3;
+    delete[] bufer;
+    delete buffer0;
 }
 
 void changeCardValue(string *events, int j, bool plusminus, int day, int month, int year, int payday)
@@ -1312,7 +1387,7 @@ int checkNumber()
         cin >> number;
         if (cin.fail())
         { // Если ввод не удался (например, ввели буквы)
-            cout << "Please enter an integer.\n";
+            cout << "Enter an integer.\n";
             cin.clear();                                                     // Сброс флага ошибки
             cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n'); // Очистка буфера
         }
@@ -1358,21 +1433,21 @@ string checkString()
     }
 }
 
-void manual(string dCluthcPath, string generalName)
+void manual()
 {
     SetConsoleOutputCP(65001); // SetConsoleOutputCP(65001);
     SetConsoleCP(65001);       //       SetConsoleCP(65001);
-    cout << " --------------------------------------------------------------------\n";
-    cout << "       Update data (1) - Обновить данные по всем картам\n";
-    cout << "        Add income (2) - Добавить доход на выбранную карту\n";
-    cout << "      Add purchase (3) - Добавить расход (покупку) на карту\n";
-    cout << "  Balance at limit (4) - Рассчитать остаток исходя из лимита на день\n";
-    cout << "     On next month (5) - Пересчет до 1-го числа последующего месяца\n";
-    cout << "        Total debt (6) - Показать полную задолженность\n";
-    cout << "        Add source (7) - Добавить новую карту\n";
-    cout << "     Delete source (8) - Удалить карту\n";
-    cout << " Update card limit (9) - Обновить лимит кредитной карты\n";
-    cout << " Autorun/Delete a.(10) - Управление автозагрузкой\n\n";
+    cout << " -----------------------------------------------------------------------\n";
+    cout << "           Update data (1) - Обновить данные по всем картам\n";
+    cout << "            Add income (2) - Добавить доход на выбранную карту\n";
+    cout << "          Add purchase (3) - Добавить расход (покупку) на карту\n";
+    cout << "  Payday on next montn (4) - Рассчитать остаток исходя из лимита на день\n";
+    cout << " Change payday / limit (5) - Пересчет до 1-го числа последующего месяца\n";
+    cout << "            Total debt (6) - Показать полную задолженность\n";
+    cout << "            Add source (7) - Добавить новую карту\n";
+    cout << "         Delete source (8) - Удалить карту\n";
+    cout << "     Update card limit (9) - Обновить лимит кредитной карты\n";
+    cout << "     Autorun/Delete a.(10) - Управление автозагрузкой\n\n";
     cout << " РАБОТА С ПРОГРАММОЙ\n\n";
     cout << " Добавление карт:\n";
     cout << " Нажмите 7 для добавления новой карты\n";
@@ -1387,8 +1462,8 @@ void manual(string dCluthcPath, string generalName)
     cout << " 2 - добавить доход (увеличит баланс выбранной карты)\n";
     cout << " 3 - добавить расход (уменьшит баланс выбранной карты)\n\n";
     cout << " Анализ расходов:\n";
-    cout << " 4 - расчет баланса при заданном дневном лимите\n";
-    cout << " 5 - пересчет расходов до конца месяца\n";
+    cout << " 4 - расчет остатка до дня зарплаты следующего месяца\n";
+    cout << " 5 - изменение дня зарплаты или суточного лимита\n";
     cout << " 6 - просмотр общей задолженности по кредитным картам\n\n";
     cout << " Управление картами:\n";
     cout << " 8 - удалить карту\n";
@@ -1400,22 +1475,22 @@ void manual(string dCluthcPath, string generalName)
     cout << " в той же папке, где находится программа\n\n";
     cout << " Не изменяйте структуру файла данных вручную - это может привести \n";
     cout << " к ошибкам\n";
-    cout << " --------------------------------------------------------------------\n\n";
+    cout << " -----------------------------------------------------------------------\n\n";
 
     ofstream manualFiles;
     manualFiles.open(fs::path(dCluthcPath).replace_filename(generalName + " info.txt"));
     if (manualFiles.is_open())
     {
-        if (filesystem::is_empty("d-clutch_MANUAL.txt"))
+        if (filesystem::is_empty(generalName + " info.txt"))
         {
             manualFiles << " Инструкция пользователя для программы " << generalName << "\n\n";
             manualFiles << " Update data (1) - Обновить данные по всем картам.\n";
             manualFiles << " Add income (2) - Добавить доход на выбранную карту.\n";
             manualFiles << " Add purchase (3) - Добавить расход (покупку) на карту.\n";
-            manualFiles << " Balance at limit (4) - Рассчитать остаток исходя из заданного";
-            manualFiles << " лимита на день.\n";
-            manualFiles << " On next month (5) - Пересчет до первого числа последующего месяца.\n";
-            manualFiles << " Total debt (6) - Показать полную задолженность.\n";
+            manualFiles << " Payday on next montn (4) - Пересчитать баланс";
+            manualFiles << " до дня зарплаты следующего месяца.\n";
+            manualFiles << " Change payday / limit (5) - Изменить день зарплаты или лимит на день.\n";
+            manualFiles << " Total debt (6) - Показать суммарную задолженность и лимиты кредитных карт.\n";
             manualFiles << " Add source (7) - Добавить новую карту.\n";
             manualFiles << " Delete source (8) - Удалить карту.\n";
             manualFiles << " Update card limit (9) - Обновить лимит кредитной карты.\n";
@@ -1434,8 +1509,8 @@ void manual(string dCluthcPath, string generalName)
             manualFiles << " 2 - добавить доход (увеличит баланс выбранной карты).\n";
             manualFiles << " 3 - добавить расход (уменьшит баланс выбранной карты).\n\n";
             manualFiles << " Анализ расходов:\n";
-            manualFiles << " 4 - расчет баланса при заданном дневном лимите.\n";
-            manualFiles << " 5 - пересчет расходов до конца месяца.\n";
+            manualFiles << " 4 - расчет остатка до дня зарплаты следующего месяца.\n";
+            manualFiles << " 5 - изменение дня зарплаты или суточного лимита.\n";
             manualFiles << " 6 - просмотр общей задолженности по кредитным картам.\n\n";
             manualFiles << " Управление картами:\n";
             manualFiles << " 8 - удалить карту.\n";
@@ -1455,6 +1530,34 @@ void manual(string dCluthcPath, string generalName)
     }
     else
         cout << "\nmanualFiles error\n\n";
+}
+
+int getDataFromFile(string marker, int defaultValue)
+{
+    string *dataFromFile = new string;
+    int newData;
+    ifstream dataFile;
+    dataFile.open(fs::path(dCluthcPath).replace_filename(generalName + ".txt"));
+    if (dataFile.is_open())
+    {
+        for (int i{}; dataFile; i++)
+        {
+            dataFile >> *dataFromFile;
+            if (*dataFromFile == marker)
+            {
+                dataFile >> newData;
+                break;
+            }
+            else
+            {
+                newData = defaultValue;
+            }
+        }
+        dataFile.close();
+    }
+    delete dataFromFile;
+
+    return newData;
 }
 
 bool fileExists(const string &filename)
