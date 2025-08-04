@@ -38,25 +38,8 @@ string checkString();
 int getDataFromFile(string, int);
 void Set65001();
 void Set1251();
-
-void dividingPoints(int value)
-{
-    if (value >= 1000 && value <= 1000000)
-        cout << value / 1000 << "'" << value - ((value / 1000) * 1000);
-    if (value >= 1000000 && value <= 1000000000)
-    {
-        cout << value / 1000000 << "'" << (value - ((value / 1000000) * 1000000)) / 1000;
-        cout << "'" << value - ((value / 1000) * 1000);
-    }
-    if (value >= 1000000000)
-    {
-        cout << value / 1000000000 << "'" << (value - ((value / 1000000000) * 1000000000)) / 1000000;
-        cout << "'" << (value - ((value / 1000000) * 1000000)) / 1000;
-        cout << "'" << value - ((value / 1000) * 1000);
-    }
-    if (value < 1000)
-        cout << value;
-}
+void threeFigureInDigit(int figure);
+void dividingPoints(int value);
 
 char *getFileName = new char[MAX_PATH]{};
 string dCluthcPath = string(getFileName, GetModuleFileNameA(NULL, getFileName, MAX_PATH));
@@ -70,7 +53,7 @@ int main()
     setlocale(LC_ALL, "RU");
 
     // НАСТРОЙКА ОТОБРАЖЕНИЯ КОНСОЛИ
-    MoveWindow(GetConsoleWindow(), 1150, 220, 740, 670, TRUE); // гориз, верт, шир, выс, ХЗ
+    // MoveWindow(GetConsoleWindow(), 1050, 220, 850, 670, TRUE); // гориз, верт, шир, выс, ХЗ
     system("color 1F");                                        // установка цвета консоли/цвета шрифта
     // HANDLE hConsole = GetStdHandle( STD_OUTPUT_HANDLE ); // установка шрифта
     // CONSOLE_FONT_INFOEX fontInfo;
@@ -86,9 +69,8 @@ int main()
     /// 1. Оптимизировать код
     // вынести в функцию remainds -- total
     /// 2. Неправильно считает баланс по лимиту и экономи/расход, если считать сразу
-    /// 3. Добавить точки при отображении больших чисел
 
-    //// остановился на: 3 (если число круглое, то пишет 0 вместо 000) void dividingPoints
+    //// остановился на: 
 
     time_t now = time(0); // текущая дата/время, основанные на текущей системе <ctime>
     struct tm *ltm = localtime(&now);
@@ -184,10 +166,6 @@ int main()
         if (j > 0)
             totally(total, payday, month);
     }
-
-    cout << "\n\n\n>>";
-    dividingPoints(total);
-    cout << "<<\n\n\n";
 
     // ИНДЕКСАЦИЯ СОБЫТИЙ
     ifstream file3;
@@ -678,8 +656,8 @@ int main()
 
                 if (x != (time_t)(-1) && y != (time_t)(-1))
                     Set65001();
-                cout << floor(total / (difftime(y, x) / (60 * 60 * 24)))
-                     << " руб./день.\n\n";
+                dividingPoints(floor(total / (difftime(y, x) / (60 * 60 * 24))));
+                cout << " руб./день.\n\n";
 
                 if (x != (time_t)(-1) && y != (time_t)(-1))
                     answ = total - (difftime(y, x) / (60 * 60 * 24)) * quest;
@@ -1195,9 +1173,15 @@ void totally(int total, int payday, int month)
     time_t y = mktime(&c);
 
     if (x != (time_t)(-1) && y != (time_t)(-1) && y != x)
-        cout << floor(total / (difftime(y, x) / (60 * 60 * 24))) << " руб./день.\n\n";
+    {
+        dividingPoints(floor(total / (difftime(y, x) / (60 * 60 * 24))));
+        cout << " руб./день.\n\n";
+    }
     if (x != (time_t)(-1) && y != (time_t)(-1) && y == x)
-        cout << total << " руб./день.\n\n";
+    {
+        dividingPoints(total);
+        cout << " руб./день.\n\n";
+    }
 
     if (x != (time_t)(-1) && y != (time_t)(-1))
         answ = total - (difftime(y, x) / (60 * 60 * 24)) * quest;
@@ -1205,7 +1189,7 @@ void totally(int total, int payday, int month)
     dividingPoints(quest);
     cout << " руб) = ";
     dividingPoints(answ);
-    cout <<" руб.\n\n";
+    cout << " руб.\n\n";
 
     string *buf = new string{};
     string *buff2 = new string[5];
@@ -1250,13 +1234,19 @@ void totally(int total, int payday, int month)
         if (x != (time_t)(-1) && y != (time_t)(-1))
             diff = (stoi(buff2[3]) - total) - ((difftime(y, x) / (60 * 60 * 24)) * quest);
         if (diff > 0)
-            cout << "  Перерасход с " << stoi(buff2[0]) << "."
-                 << stoi(buff2[1]) << "." << stoi(buff2[2])
-                 << " = " << diff << " руб.\n\n\n";
+        {
+            cout << "  Перерасход с " << stoi(buff2[0]) << "." << stoi(buff2[1]) << "."
+                 << stoi(buff2[2]) << " = ";
+            dividingPoints(diff);
+            cout << " руб.\n\n\n";
+        }
         else if (diff < 0)
-            cout << "  Экономия с " << stoi(buff2[0]) << "."
-                 << stoi(buff2[1]) << "." << stoi(buff2[2])
-                 << " = " << abs(diff) << " руб.\n\n\n";
+        {
+            cout << "  Экономия с " << stoi(buff2[0]) << "." << stoi(buff2[1])
+                 << "." << stoi(buff2[2]) << " = ";
+            dividingPoints(abs(diff));
+            cout << " руб.\n\n\n";
+        }
         else
             cout << "  Расходы соответствуют лимиту.\n\n\n";
     }
@@ -1339,7 +1329,9 @@ void changeCardValue(string *events, int j, bool plusminus, int day, int month, 
             }
             changeCardFile03.close();
             Set65001();
-            cout << "\n  Новое значение: " << newValue << "\n\n";
+            cout << "\n  Новое значение: ";
+            dividingPoints(newValue);
+            cout << "\n\n";
             for (int i = 1; i <= j; i++)
             { // подсчёт общего остатка
                 total += atoi(remainds[i].c_str());
@@ -1655,6 +1647,53 @@ int getDataFromFile(string marker, int defaultValue)
     delete dataFromFile;
 
     return newData;
+}
+
+void threeFigureInDigit(int figure)
+{
+    if (figure >= 0 && figure <= 9)
+        cout << "'00" << figure;
+    else if (figure >= 10 && figure <= 99)
+        cout << "'0" << figure;
+    else
+        cout << "'" << figure;
+}
+
+void dividingPoints(int value)
+{
+    Set65001();
+
+    int billions = value / 1000000000;
+    int millions = ((value - (billions * 1000000000))) / 1000000;
+    int thousands = ((value - (millions * 1000000))) / 1000;
+    int units = value - ((value / 1000) * 1000);
+
+    if (value <= 2003004005)
+    {
+        if (value >= 1000 && value < 1000000)
+        {
+            cout << thousands;
+            threeFigureInDigit(units);
+        }
+
+        if (value >= 1000000 && value < 1000000000)
+        {
+            cout << millions;
+            threeFigureInDigit(thousands);
+            threeFigureInDigit(units);
+        }
+        if (value >= 1000000000)
+        {
+            cout << billions;
+            threeFigureInDigit(millions);
+            threeFigureInDigit(thousands - (billions * 1000000));
+            threeFigureInDigit(units);
+        }
+        if (value < 1000)
+            cout << value;
+    }
+    else
+        cout << "Слишком большое значение. Для его уменьшения обратитесь в налоговую.";
 }
 
 bool fileExists(const string &filename)
