@@ -9,6 +9,7 @@
         "sstream": "cpp",
         "fstream": "cpp",
         "xlocmes": "cpp",
-        "cstdlib": "cpp"
+        "cstdlib": "cpp",
+        "system_error": "cpp"
     }
 }
