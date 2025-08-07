@@ -52,15 +52,20 @@ void plannedExpenses()
 {
     int quest = 3;
     int newData{};
+    bool txtExists = false;
     string oneOrEvery;
     string *buffer1 = new string;
+    string *bufferArray = new string[*n];
 
     Set65001();
     ifstream plannedExpensesSETFile;
     plannedExpensesSETFile.open(fs::path(dCluthcPath).replace_filename(generalName + "Log.txt"));
     if (plannedExpensesSETFile.is_open())
     {
-        cout << "   Обновить (нажмите 0). Создать (1). Удалить (2).\n";
+        cout << "   Обновить существующие (нажмите 0)\n";
+        cout << "   Создать новый расход (1)\n";
+        cout << "   Удалить один из них (2).\n";
+        txtExists = true;
         quest = checkNumber();
     }
     else
@@ -68,7 +73,23 @@ void plannedExpenses()
 
     if (quest == 0)
     {
-        
+        cout << "   UNDER DEVELOPMENT\n";
+        // // загружаем существующие
+        //     ifstream plExReadFile;
+        //     plExReadFile.open(fs::path(dCluthcPath).replace_filename(generalName + "Log.txt"));
+        //     if (plExReadFile.is_open())
+        //     {
+        //         for (int i{}; plExReadFile; i++)
+        //         {
+        //             plExReadFile >> *bufferArray;
+        //         }
+        //         plExReadFile.close();
+        //     }
+        //     else
+        //     {
+        //         Set65001();
+        //         cout << "\nОшибка открытия файла plannedExpensesReadFile\n\n";
+        //     }
     }
 
     if (quest == 1)
@@ -80,30 +101,55 @@ void plannedExpenses()
         cout << "  Введите планируемую стоимость\n";
         newData = checkNumber();
         Set65001();
-        cout << "  Разовый расход (нажмите 1), ежемесячный (2)\n";
-        int que = checkNumber();
+        cout << "  Если расход ежемесячный (нажмите 1)\n";
+        int que = 0;
+        que = checkNumber();
         Set1251();
-        if (que == 1)
+        if (que != 1)
             oneOrEvery = "one";
-        if (que == 2)
-            oneOrEvery = "evrery";
-
-        ofstream plannedExpensesLOADfile;
-        plannedExpensesLOADfile.open(fs::path(dCluthcPath).replace_filename(generalName + "Log.txt"));
-        if (plannedExpensesLOADfile.is_open())
+        if (que == 1)
+            oneOrEvery = "every";
+        // если файла с запланированными расходами еще нет
+        if (txtExists == false)
         {
-            // Set65001();
-            plannedExpensesLOADfile << "/ " << *buffer1 << " - " << newData << " " << oneOrEvery << "\n";
-            plannedExpensesLOADfile.close();
+            ofstream plannedExpensesLOADfile;
+            plannedExpensesLOADfile.open(fs::path(dCluthcPath).replace_filename(generalName + "Log.txt"));
+            if (plannedExpensesLOADfile.is_open())
+            {
+                plannedExpensesLOADfile << "/ " << *buffer1 << " - " << newData << " " << oneOrEvery << "\n";
+                plannedExpensesLOADfile.close();
+            }
+            else
+            {
+                Set65001();
+                cout << "\nОшибка открытия файла plannedExpensesLOADfile\n\n";
+            }
         }
-        else
+        // если файл с запланированными расходами есть
+        if (txtExists == true)
         {
-            Set65001();
-            cout << "\nОшибка открытия файла plannedExpensesLOADfile\n\n";
+            fstream plExADDfile;
+            plExADDfile.open(fs::path(dCluthcPath).replace_filename(generalName + "Log.txt"), ios::app);
+            if (plExADDfile.is_open())
+            {
+                plExADDfile << "/ " << *buffer1 << " - " << newData << " " << oneOrEvery << "\n";
+                plExADDfile.close();
+            }
+            else
+            {
+                Set65001();
+                cout << "\nОшибка открытия файла plExADDfile\n\n";
+            }
         }
     }
 
+    if (quest == 2)
+    {
+        cout << "   UNDER DEVELOPMENT\n";
+    }
+
     delete buffer1;
+    delete[] bufferArray;
     cout << "\n\n\n";
 }
 
@@ -112,7 +158,7 @@ int main()
     setlocale(LC_ALL, "RU");
 
     // НАСТРОЙКА ОТОБРАЖЕНИЯ КОНСОЛИ
-    MoveWindow(GetConsoleWindow(), 1070, 220, 850, 800, TRUE); // гориз, верт, шир, выс, ХЗ
+    // MoveWindow(GetConsoleWindow(), 1070, 220, 850, 800, TRUE); // гориз, верт, шир, выс, ХЗ
     system("color 1F");                                        // установка цвета консоли/цвета шрифта
     // HANDLE hConsole = GetStdHandle( STD_OUTPUT_HANDLE ); // установка шрифта
     // CONSOLE_FONT_INFOEX fontInfo;
@@ -132,9 +178,9 @@ int main()
     /// 3. блок - "запланированные расходы" (обновляются вначале месяца или с зп)
     // СИНХРОНИЗИРОВАТЬ С АНГ
 
-    //// ОТКЛЮЧИТЬ РАЗМЕР ОКНА
+    // РАЗМЕР ОКНА отключен
 
-    //// остановился на: создавал возможность Обновления в функции Запланированные расходы
+    //// остановился на: сделать удаление расходов с вызовом функции (3) или отказом от нее
 
     time_t now = time(0); // текущая дата/время, основанные на текущей системе <ctime>
     struct tm *ltm = localtime(&now);
@@ -246,26 +292,28 @@ int main()
         if (plannedExpensesReadFile.is_open())
         {
             Set1251();
-            // Set65001();
             for (int i{}; plannedExpensesReadFile; i++)
             {
                 plannedExpensesReadFile >> *buffer0;
                 if (*buffer0 == "/")
-                    cout << "\n   ";
-                if (*buffer0 == "one" && *buffer1 != *buffer0)
-                    cout << "(разовый)";
-                if (*buffer0 == "every" && *buffer1 != *buffer0)
-                    cout << "(ежемес.)";
-                if (*buffer0 != "/" && *buffer1 != *buffer0 && *buffer0 != "one" && *buffer0 != "every")
-                    cout << *buffer0 << " ";
-                if (*buffer0 == "-")
                 {
+                    cout << "\n   ";
+                    plannedExpensesReadFile >> *buffer0;
+                    Set1251();
+                    cout << *buffer0;
+                    plannedExpensesReadFile >> *buffer0;
+                    cout << " " << *buffer0;
                     plannedExpensesReadFile >> *buffer0;
                     summa += stoi(*buffer0);
+                    cout << " ";
                     dividingPoints(stoi(*buffer0));
                     cout << " ";
                     k++;
                 }
+                if (*buffer0 == "every" && *buffer1 != *buffer0)
+                cout << "(ежемес.)";
+                if (*buffer0 == "one" && *buffer1 != *buffer0)
+                cout << "(разовый)";
                 *buffer1 = *buffer0;
             }
             if (k > 1)
@@ -273,7 +321,7 @@ int main()
                 cout << "\n   Сумма расходов = ";
                 dividingPoints(summa);
             }
-            cout << ". Остаток за вычетом: ";
+            cout << ". Остаток за вычетом расходов: ";
             dividingPoints(total - summa);
         }
         else
@@ -1125,6 +1173,16 @@ int main()
                 delete[] cardDebt;
             }
 
+            // ПОВТОРНЫЙ ВЫЗОВ ТОТАЛА
+            else if (i > 0 && question == 12)
+            { // подсчёт общего остатка
+                Set1251();
+                for (int i = 1; i <= j; i++)
+                    total += atoi(remainds[i].c_str());
+                if (j > 0)
+                    totally(total, payday, month);
+            }
+
             functions(j);
             Set65001();
             // cout << "        Для выхода из программы                 (11)\n\n";
@@ -1274,6 +1332,7 @@ void functions(int j)
         cout << "        Редактировать запланированные расходы    (5)\n";
         cout << "        --------------------------------------------\n";
     }
+    cout << "        Для повторного отображения итога        (12)\n";
     cout << "        Для выхода из программы                 (11)\n\n";
 }
 
@@ -1599,9 +1658,9 @@ int checkDigit()
             cin.clear();                                                     // Сброс флага ошибки
             cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n'); // Очистка буфера
         }
-        else if (number < 0 || number > 11)
+        else if (number < 0 || number > 12)
         { // Проверка диапазона
-            cout << "Число должно быть от 0 до 11.\n";
+            cout << "Число должно быть от 0 до 12.\n";
         }
         else
         {
