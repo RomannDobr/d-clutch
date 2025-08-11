@@ -51,6 +51,7 @@ const int *m = new const int{99};   // среднее число для счёт
 void plannedExpenses()
 {
     int quest = 3;
+    int que{};
     int newData{};
     bool txtExists = false;
     string oneOrEvery;
@@ -69,13 +70,13 @@ void plannedExpenses()
         quest = checkNumber();
     }
     else
-        quest = 1;
+    quest = 1;
 
     if (quest == 0)
     {
         cout << "   UNDER DEVELOPMENT\n";
     }
-
+    
     if (quest == 1)
     {
         Set65001();
@@ -91,7 +92,7 @@ void plannedExpenses()
         Set1251();
         if (que != 1)
             oneOrEvery = "one";
-        if (que == 1)
+            if (que == 1)
             oneOrEvery = "every";
         // если файла с запланированными расходами еще нет
         if (txtExists == false)
@@ -129,7 +130,32 @@ void plannedExpenses()
 
     if (quest == 2)
     {
-        cout << "   UNDER DEVELOPMENT\n";
+        cout << "  Выберите расход для удаления:\n";
+        int j{};
+        ifstream dataFile;
+            dataFile.open(fs::path(dCluthcPath).replace_filename(generalName + "Log.txt"));
+            if (dataFile.is_open())
+            {
+                Set1251();
+                for (int i{}; dataFile; i++)
+                {
+                    dataFile >> *buffer1;
+                    if (*buffer1 == "/")
+                    {
+                        j++;
+                        dataFile >> *buffer1;
+                        cout << "   " << *buffer1 << " (" << j << ")" << "\n";
+                    }
+                }
+                dataFile.close();
+            }
+            que = checkNumber();
+
+        // for (int i = 1; i <= 10; i++)
+        // {
+        //     Set65001();
+        //     cout << " (нажмите " << i << ")" << "\n";
+        // }
     }
 
     delete buffer1;
@@ -143,7 +169,7 @@ int main()
 
     // НАСТРОЙКА ОТОБРАЖЕНИЯ КОНСОЛИ
     // MoveWindow(GetConsoleWindow(), 1070, 220, 850, 800, TRUE); // гориз, верт, шир, выс, ХЗ
-    system("color 1F");                                        // установка цвета консоли/цвета шрифта
+    system("color 1F"); // установка цвета консоли/цвета шрифта
     // HANDLE hConsole = GetStdHandle( STD_OUTPUT_HANDLE ); // установка шрифта
     // CONSOLE_FONT_INFOEX fontInfo;
     // fontInfo.cbSize = sizeof( fontInfo );
@@ -166,6 +192,7 @@ int main()
     // РАЗМЕР ОКНА отключен
 
     //// остановился на: сделать удаление расходов с вызовом функции (3) или отказом от нее
+    // в строку 154 по аналогии с 730
 
     time_t now = time(0); // текущая дата/время, основанные на текущей системе <ctime>
     struct tm *ltm = localtime(&now);
@@ -191,9 +218,9 @@ int main()
 
     nowData(wday, day, month, year); // отображение текущей даты
 
-    // //   cout << "\n15:30\n"; // для тестов
+    //   cout << "\n15:30\n"; // для тестов
 
-    if (generalName == "d-clutch_v1.5rus" && !fileExists(generalName + ".txt"))
+    if (generalName == "d-clutch_v1.7rus" && !fileExists(generalName + ".txt"))
     {
         cout << "\n Чтобы ваши персональные данные были скрытыми";
         cout << "\n закройте приложение, переместите его в любую папку";
@@ -296,9 +323,9 @@ int main()
                     k++;
                 }
                 if (*buffer0 == "every" && *buffer1 != *buffer0)
-                cout << "(ежемес.)";
+                    cout << "(ежемес.)";
                 if (*buffer0 == "one" && *buffer1 != *buffer0)
-                cout << "(разовый)";
+                    cout << "(разовый)";
                 *buffer1 = *buffer0;
             }
             if (k > 1)
