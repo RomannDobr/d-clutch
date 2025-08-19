@@ -10,6 +10,7 @@
         "fstream": "cpp",
         "xlocmes": "cpp",
         "cstdlib": "cpp",
-        "system_error": "cpp"
+        "system_error": "cpp",
+        "vector": "cpp"
     }
 }

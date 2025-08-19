@@ -25,22 +25,23 @@ void nowData();
 void nowData(int, int);
 void nowData(int, int, int);
 void allFunctions(int);
-void functions(int);
+void functions();
 void totally(int, int);
 void changeCardValue(string *, int, bool, int);
 void autorun(int);
 void manual();
 int checkDigit();
 int checkNumber();
+int getValueFromFile(string, string, int);
 bool checkStringContains(const string &);
 bool fileExists(const string &);
 string checkString();
-int getDataFromFile(string, string, int);
 void Set65001();
 void Set1251();
 void threeFigureInDigit(int);
 void dividingPoints(int);
 void negativeValue(int);
+void plannedExpenses();
 
 char *getFileName = new char[MAX_PATH]{};
 string dCluthcPath = string(getFileName, GetModuleFileNameA(NULL, getFileName, MAX_PATH));
@@ -56,190 +57,6 @@ int year = 1900 + ltm->tm_year;
 int month = 1 + ltm->tm_mon;
 int day = ltm->tm_mday;
 int wday = ltm->tm_wday;
-
-void plannedExpenses()
-{
-    int quest = 3;
-    int que{};
-    int q{};
-    int newData{};
-    bool txtExists = false;
-    string oneOrEvery;
-    string *buffer1 = new string;
-    string *bufArrayEvent = new string[*n];
-    string *bufArrayAll = new string[*n];
-
-    Set65001();
-    ifstream plannedExpensesSETFile;
-    plannedExpensesSETFile.open(fs::path(dCluthcPath).replace_filename(generalName + "Log.txt"));
-    if (plannedExpensesSETFile.is_open())
-    {
-        cout << "   Создать новый расход (1)\n";
-        cout << "   Удалить расход (2).\n";
-        txtExists = true;
-        quest = checkNumber();
-    }
-    else
-        quest = 1;
-
-    if (quest == 1)
-    {
-        Set65001();
-        cout << "  Введите название расхода (не используйте пробелы или -;/|*)\n";
-        *buffer1 = checkString();
-        Set65001();
-        cout << "  Введите планируемую стоимость\n";
-        newData = checkNumber();
-        Set65001();
-        cout << "  Если расход ежемесячный (нажмите 1)\n";
-        int que = 0;
-        que = checkNumber();
-        Set1251();
-        if (que != 1)
-            oneOrEvery = "one";
-        if (que == 1)
-            oneOrEvery = "every";
-        // если файла с запланированными расходами еще нет
-        if (txtExists == false)
-        {
-            ofstream plannedExpensesLOADfile;
-            plannedExpensesLOADfile.open(fs::path(dCluthcPath).replace_filename(generalName + "Log.txt"));
-            if (plannedExpensesLOADfile.is_open())
-            {
-                plannedExpensesLOADfile << "/ " << *buffer1 << " - " << newData << " " << oneOrEvery;
-                plannedExpensesLOADfile << " ;\n\n* " << month;
-                plannedExpensesLOADfile.close();
-            }
-            else
-            {
-                Set65001();
-                cout << "\nОшибка открытия файла plannedExpensesLOADfile\n\n";
-            }
-        }
-        // если файл с запланированными расходами есть
-        if (txtExists == true)
-        {
-
-            ifstream plExADDfile0;
-            plExADDfile0.open(fs::path(dCluthcPath).replace_filename(generalName + "Log.txt"));
-            if (plExADDfile0.is_open())
-            {
-                Set1251();
-                for (int i{}; plExADDfile0; i++)
-                {
-                    plExADDfile0 >> bufArrayAll[i];
-                    if (bufArrayAll[i] == "*")
-                        break;
-                    q++;
-                }
-                plExADDfile0.close();
-            }
-            else
-            {
-                Set65001();
-                cout << "\nОшибка открытия файла plExADDfile0\n\n";
-            }
-
-            ofstream plExADDfile;
-            plExADDfile.open(fs::path(dCluthcPath).replace_filename(generalName + "Log.txt"));
-            if (plExADDfile.is_open())
-            {
-                for (int i{}; i < q; i++)
-                {
-                    plExADDfile << bufArrayAll[i] << " ";
-                    if (bufArrayAll[i] == ";")
-                        plExADDfile << " \n";
-                }
-                plExADDfile << "/ " << *buffer1 << " - " << newData << " " << oneOrEvery;
-                plExADDfile << " ;\n\n* " << month;
-                plExADDfile.close();
-            }
-            else
-            {
-                Set65001();
-                cout << "\nОшибка открытия файла plExADDfile\n\n";
-            }
-        }
-    }
-
-    if (quest == 2)
-    {
-        cout << "  Выберите расход для удаления:\n";
-        int j{};
-        ifstream dataFile;
-        dataFile.open(fs::path(dCluthcPath).replace_filename(generalName + "Log.txt"));
-        if (dataFile.is_open())
-        {
-            Set1251();
-            for (int i{}; dataFile; i++)
-            {
-                dataFile >> bufArrayAll[i];
-                if (bufArrayAll[i] == "/")
-                {
-                    j++;
-                    dataFile >> bufArrayEvent[j];
-                    cout << "   " << bufArrayEvent[j] << " (" << j << ")" << "\n";
-                    bufArrayAll[i + 1] = bufArrayEvent[j];
-                    i++;
-                    q++;
-                }
-                if (bufArrayAll[i] == "*")
-                    break;
-                q++;
-            }
-            dataFile.close();
-        }
-
-        que = checkNumber();
-
-        string *bufArDeleteEvent = new string[*n];
-
-        ofstream delfiles(fs::path(dCluthcPath).replace_filename(generalName + "Log.txt"),
-                          ios::out);
-        for (int i{}, l{}, k{}; i < q; i++)
-        {
-            if (bufArrayAll[i] == "/" || bufArrayAll[i] == "|")
-                l++;
-            if (que == l)
-            {
-                bufArDeleteEvent[k] = bufArrayAll[i];
-                k++;
-            }
-            if (que != l)
-                delfiles << bufArrayAll[i] << " ";
-            if (bufArrayAll[i] == ";" && que != l)
-                delfiles << "\n";
-        }
-        if (bufArDeleteEvent[4] == "every")
-        {
-            Set65001();
-            cout << " Если нужно удалить навсегда нажмите (0). Если до следующей зарплаты (1).\n";
-            que = checkNumber();
-            if (que == 1)
-            {
-                delfiles << "| ";
-                for (int i = 1; i < 6; i++)
-                    delfiles << bufArDeleteEvent[i] << " ";
-            }
-            delfiles << "\n\n* " << month;
-        }
-        else
-            delfiles << "\n\n* " << month;
-
-        Set1251();
-        delfiles.close();
-        cout << "  " << bufArDeleteEvent[1];
-        Set65001();
-        cout << " удален.\n  Чтобы вычесть сумму с одной из карт нажмите (3).\n";
-
-        delete[] bufArDeleteEvent;
-    }
-
-    delete buffer1;
-    delete[] bufArrayAll;
-    delete[] bufArrayEvent;
-    cout << "\n\n\n";
-}
 
 int main()
 {
@@ -259,15 +76,10 @@ int main()
     Set65001();
     cout << "\n ---        d-clutch        ---\n";
 
-    /// 1. Оптимизировать код
-    // вынести в функцию remainds -- total
-    /// 2. Поправить косяки
-    // неправильно считает баланс по лимиту и экономи/расход, если считать сразу
-    /// 3. блок - "запланированные расходы" (обновляются вначале месяца или с зп)
-    /// 4. Переделать мануал
-    // СИНХРОНИЗИРОВАТЬ С АНГ
-
-    //// остановился на: 3. Поместить на стр 369 проверку отображения запланированных расходов
+    /// 1. Оптимизировать код (вынести в функцию remainds -- total)
+    /// 2. Неправильно считает баланс по лимиту и экономи/расход, если считать сразу
+    /// 3. Переделать мануал
+    /// 4. СИНХРОНИЗИРОВАТЬ С АНГ
 
     int question = 123; // 0 занят
     int payday = 1;
@@ -334,7 +146,6 @@ int main()
                 file2 >> buffer0;
                 file2 >> buffer1;
                 file2 >> remainds[k];
-                // Set1251();
                 Set65001();
                 cout << " " << buffer0 << " - ";
                 dividingPoints(stoi(remainds[k]));
@@ -348,7 +159,7 @@ int main()
         file2.close();
     }
 
-    payday = getDataFromFile("**", ".txt", payday);
+    payday = getValueFromFile("**", ".txt", payday);
 
     { // подсчёт общего остатка
         for (int i = 1; i <= j; i++)
@@ -358,18 +169,71 @@ int main()
     }
 
     // ФУНКЦИЯ "ЗАПЛАНИРОВАННЫЕ РАСХОДЫ"
+    if (fileExists(generalName + ".txt"))
     {
         Set65001();
         cout << "   ЗАПЛАНИРОВАННЫЕ РАСХОДЫ:";
 
         int k{};
+        int q{};
         int summa{};
         string *buffer0 = new string;
         string *buffer1 = new string{};
 
-        // проверка отображения запланированных расходов
-        // cout << "\n>>>" << getDataFromFile("*", "Log.txt", 1) << "\n";
-
+        // если надо обновить ежемесячные расходы
+        if (getValueFromFile("*", "Log.txt", 0) < month)
+        {
+            // извлечение текста из текстовика
+            string *dataFromFileArray = new string[*n];
+            ifstream dataReadFile;
+            dataReadFile.open(fs::path(dCluthcPath).replace_filename(generalName + "Log.txt"));
+            if (dataReadFile.is_open())
+            {
+                Set1251();
+                for (int i{}; dataReadFile; i++)
+                {
+                    dataReadFile >> dataFromFileArray[i];
+                    if (dataFromFileArray[i] == dataFromFileArray[i - 1])
+                        break;
+                    q++;
+                }
+                dataReadFile.close();
+                cout << "\n\n";
+            }
+            else
+            {
+                Set65001();
+                cout << "\nОшибка открытия файла dataReadFile\n\n";
+            }
+            // обновление состояний платежей
+            ofstream dataLoadFile;
+            dataLoadFile.open(fs::path(dCluthcPath).replace_filename(generalName + "Log.txt"));
+            if (dataLoadFile.is_open())
+            {
+                for (int i{}; i < q; i++)
+                {
+                    if (dataFromFileArray[i] == "|")
+                        dataLoadFile << "/ ";
+                    else
+                        dataLoadFile << dataFromFileArray[i] << " ";
+                    if (dataFromFileArray[i] == ";")
+                        dataLoadFile << "\n";
+                    if (dataFromFileArray[i] == "*")
+                    {
+                        dataLoadFile << month << " ";
+                        break;
+                    }
+                }
+                dataLoadFile.close();
+            }
+            else
+            {
+                Set65001();
+                cout << "\nОшибка открытия файла dataLoadFile\n\n";
+            }
+            delete[] dataFromFileArray;
+        }
+        // отображение запланированных расходов
         ifstream plannedExpensesReadFile;
         plannedExpensesReadFile.open(fs::path(dCluthcPath).replace_filename(generalName + "Log.txt"));
         if (plannedExpensesReadFile.is_open())
@@ -943,8 +807,8 @@ int main()
                 string *buffer0 = new string;
                 string *buffer = new string[*n];
                 total = 0;
-                questLimit = getDataFromFile("*", ".txt", questLimit);
-                questPayday = getDataFromFile("**", ".txt", questPayday);
+                questLimit = getValueFromFile("*", ".txt", questLimit);
+                questPayday = getValueFromFile("**", ".txt", questPayday);
 
                 Set65001();
                 int change{};
@@ -1269,12 +1133,15 @@ int main()
             // ПОВТОРНЫЙ ВЫЗОВ ТОТАЛА
             else if (i > 0 && question == 12)
             { // подсчёт общего остатка
-                // Set1251();
                 if (j > 0)
                     totally(total, payday);
             }
 
-            functions(j);
+            // ПОВТОРНЫЙ ВЫЗОВ ВСЕХ ФУНКЦИЙ
+            else if (i > 0 && question == 13)
+                allFunctions(j);
+
+            functions();
             Set65001();
         }
     }
@@ -1409,20 +1276,13 @@ void allFunctions(int j)
 }
 
 // ОТОБРАЖЕНИЕ ЧАСТИ ФУНКЦИЙ
-void functions(int j)
+void functions()
 {
     Set65001();
-    if (j > 0)
-    {
-        cout << "        Обновить данные                          (1)\n";
-        cout << "        Добавить доход                           (2)\n";
-        cout << "        Добавить расход                          (3)\n";
-        cout << "        Баланс до следующего месяца              (4)\n";
-        cout << "        Редактировать запланированные расходы    (5)\n";
-        cout << "        --------------------------------------------\n";
-    }
+    cout << "        --------------------------------------------\n";
     cout << "        Для повторного отображения итога        (12)\n";
-    cout << "        Для выхода из программы                 (11)\n\n";
+    cout << "        Для повторного отображения всех функций (13)\n";
+    cout << "        --------------------------------------------\n";
 }
 
 // ОТОБРАЖЕНИЕ ТОТАЛА. БАЛАНСА НА ДЕНЬ ЗП. И СООТВЕТСТВИЯ РАСХОДОВ ЛИМИТУ
@@ -1433,7 +1293,7 @@ void totally(int total, int payday)
     string buff[4];
     string *buffer0 = new string;
 
-    quest = getDataFromFile("*", ".txt", quest);
+    quest = getValueFromFile("*", ".txt", quest);
 
     ifstream totallyQuestFile1;
     totallyQuestFile1.open(fs::path(dCluthcPath).replace_filename(generalName + ".txt"));
@@ -1750,9 +1610,9 @@ int checkDigit()
             cin.clear();                                                     // Сброс флага ошибки
             cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n'); // Очистка буфера
         }
-        else if (number < 0 || number > 12)
+        else if (number < 0 || number > 13)
         { // Проверка диапазона
-            cout << "Число должно быть от 0 до 12.\n";
+            cout << "Число должно быть от 0 до 13.\n";
         }
         else
         {
@@ -1919,10 +1779,221 @@ void manual()
     }
     else
         cout << "\nошибка при создании manualFiles\n\n";
+
+    // string readManual;
+    // ifstream manualReadFiles;
+    // manualReadFiles.open(fs::path(dCluthcPath).replace_filename(generalName + " info.txt"));
+    // if (manualReadFiles.is_open())
+    // {
+    //     // Set1251();
+    //     Set65001();
+    //     for (int i{}; manualReadFiles; i++)
+    //     {
+    //         manualReadFiles >> readManual;
+    //         // if (readManual == "\n")
+    //         // {
+    //         //     // Set65001();
+    //         //     cout << "\n";
+    //         // }
+    //         // Set65001();
+    //         cout << readManual << " ";
+    //     }
+    //     manualReadFiles.close();
+    //     cout << "\n\n";
+    // }
+    // else
+    // {
+    //     Set65001();
+    //     cout << "\nОшибка открытия файла manualReadFiles\n\n";
+    // }
+}
+
+void plannedExpenses()
+{
+    int quest = 3;
+    int que{};
+    int q{};
+    int newData{};
+    bool txtExists = false;
+    string oneOrEvery;
+    string *buffer1 = new string;
+    string *bufArrayEvent = new string[*n];
+    string *bufArrayAll = new string[*n];
+
+    Set65001();
+    ifstream plannedExpensesSETFile;
+    plannedExpensesSETFile.open(fs::path(dCluthcPath).replace_filename(generalName + "Log.txt"));
+    if (plannedExpensesSETFile.is_open())
+    {
+        cout << "   Создать новый расход (1)\n";
+        cout << "   Удалить расход (2).\n";
+        txtExists = true;
+        quest = checkNumber();
+    }
+    else
+        quest = 1;
+
+    if (quest == 1)
+    {
+        Set65001();
+        cout << "  Введите название расхода (не используйте пробелы или -;/|*)\n";
+        *buffer1 = checkString();
+        Set65001();
+        cout << "  Введите планируемую стоимость\n";
+        newData = checkNumber();
+        Set65001();
+        cout << "  Если расход ежемесячный (нажмите 1)\n";
+        int que = 0;
+        que = checkNumber();
+        Set1251();
+        if (que != 1)
+            oneOrEvery = "one";
+        if (que == 1)
+            oneOrEvery = "every";
+        // если файла с запланированными расходами еще нет
+        if (txtExists == false)
+        {
+            ofstream plannedExpensesLOADfile;
+            plannedExpensesLOADfile.open(fs::path(dCluthcPath).replace_filename(generalName + "Log.txt"));
+            if (plannedExpensesLOADfile.is_open())
+            {
+                plannedExpensesLOADfile << "/ " << *buffer1 << " - " << newData << " " << oneOrEvery;
+                plannedExpensesLOADfile << " ;\n\n* " << month;
+                plannedExpensesLOADfile.close();
+            }
+            else
+            {
+                Set65001();
+                cout << "\nОшибка открытия файла plannedExpensesLOADfile\n\n";
+            }
+        }
+        // если файл с запланированными расходами есть
+        if (txtExists == true)
+        {
+
+            ifstream plExADDfile0;
+            plExADDfile0.open(fs::path(dCluthcPath).replace_filename(generalName + "Log.txt"));
+            if (plExADDfile0.is_open())
+            {
+                Set1251();
+                for (int i{}; plExADDfile0; i++)
+                {
+                    plExADDfile0 >> bufArrayAll[i];
+                    if (bufArrayAll[i] == "*")
+                        break;
+                    q++;
+                }
+                plExADDfile0.close();
+            }
+            else
+            {
+                Set65001();
+                cout << "\nОшибка открытия файла plExADDfile0\n\n";
+            }
+
+            ofstream plExADDfile;
+            plExADDfile.open(fs::path(dCluthcPath).replace_filename(generalName + "Log.txt"));
+            if (plExADDfile.is_open())
+            {
+                for (int i{}; i < q; i++)
+                {
+                    plExADDfile << bufArrayAll[i] << " ";
+                    if (bufArrayAll[i] == ";")
+                        plExADDfile << " \n";
+                }
+                plExADDfile << "/ " << *buffer1 << " - " << newData << " " << oneOrEvery;
+                plExADDfile << " ;\n\n* " << month;
+                plExADDfile.close();
+            }
+            else
+            {
+                Set65001();
+                cout << "\nОшибка открытия файла plExADDfile\n\n";
+            }
+        }
+    }
+
+    if (quest == 2)
+    {
+        cout << "  Выберите расход для удаления:\n";
+        int j{};
+        ifstream dataFile;
+        dataFile.open(fs::path(dCluthcPath).replace_filename(generalName + "Log.txt"));
+        if (dataFile.is_open())
+        {
+            Set1251();
+            for (int i{}; dataFile; i++)
+            {
+                dataFile >> bufArrayAll[i];
+                if (bufArrayAll[i] == "/")
+                {
+                    j++;
+                    dataFile >> bufArrayEvent[j];
+                    cout << "   " << bufArrayEvent[j] << " (" << j << ")" << "\n";
+                    bufArrayAll[i + 1] = bufArrayEvent[j];
+                    i++;
+                    q++;
+                }
+                if (bufArrayAll[i] == "*")
+                    break;
+                q++;
+            }
+            dataFile.close();
+        }
+
+        que = checkNumber();
+
+        string *bufArDeleteEvent = new string[*n];
+
+        ofstream delfiles(fs::path(dCluthcPath).replace_filename(generalName + "Log.txt"),
+                          ios::out);
+        for (int i{}, l{}, k{}; i < q; i++)
+        {
+            if (bufArrayAll[i] == "/" || bufArrayAll[i] == "|")
+                l++;
+            if (que == l)
+            {
+                bufArDeleteEvent[k] = bufArrayAll[i];
+                k++;
+            }
+            if (que != l)
+                delfiles << bufArrayAll[i] << " ";
+            if (bufArrayAll[i] == ";" && que != l)
+                delfiles << "\n";
+        }
+        if (bufArDeleteEvent[4] == "every")
+        {
+            Set65001();
+            cout << " Если нужно удалить навсегда нажмите (0). Если до следующей зарплаты (1).\n";
+            que = checkNumber();
+            if (que == 1)
+            {
+                delfiles << "| ";
+                for (int i = 1; i < 6; i++)
+                    delfiles << bufArDeleteEvent[i] << " ";
+            }
+            delfiles << "\n\n* " << month;
+        }
+        else
+            delfiles << "\n\n* " << month;
+
+        Set1251();
+        delfiles.close();
+        cout << "  " << bufArDeleteEvent[1];
+        Set65001();
+        cout << " удален.\n  Чтобы вычесть сумму с одной из карт нажмите (3).\n";
+
+        delete[] bufArDeleteEvent;
+    }
+
+    delete buffer1;
+    delete[] bufArrayAll;
+    delete[] bufArrayEvent;
+    cout << "\n\n\n";
 }
 
 // ФУНКЦИЯ ИЗВЛЕЧЕНИЯ ЗАДАННОГО ЗНАЧЕНИЯ ИЗ ТЕКСТОВИКА
-int getDataFromFile(string marker, string title, int defaultValue)
+int getValueFromFile(string marker, string title, int defaultValue)
 {
     string *dataFromFile = new string;
     int newData;
