@@ -43,6 +43,7 @@ void threeFigureInDigit(int);
 void dividingPoints(int);
 void negativeValue(int);
 void plannedExpenses();
+void showPlannedExpenses();
 
 char *getFileName = new char[MAX_PATH]{};
 string dCluthcPath = string(getFileName, GetModuleFileNameA(NULL, getFileName, MAX_PATH));
@@ -58,6 +59,7 @@ int year = 1900 + ltm->tm_year;
 int month = 1 + ltm->tm_mon;
 int day = ltm->tm_mday;
 int wday = ltm->tm_wday;
+int total = 0;
 
 int main()
 {
@@ -82,16 +84,17 @@ int main()
     /// 3. Синхронизировать ПОДСЧЁТ ОБЩЕГО ОСТАТКА с анг.
     // ПОВТОР СУММЫ на карте, чтобы не вводить, если она не изменилась
     // ПОВТОР ВЫВОДА новых значений (в двух местах)
-    /// 4. Сделать повторный вывод запланированных расходов.
-    /// 5. Добавить разделительные точки в повторный вывод.
+    // dividingPoints в функции (4)
+    // dividingPoints в функции (1)
+    // перенес и создал функцию void showPlannedExpenses();
+    // сделал повторный вывод запланированных расходов в функции plannedExpenses().
 
-    /// остановился на: 
+    /// остановился на:
 
     int question = 123; // 0 занят
     int payday = 1;
     int remaind = 0;
     int limit = 0;
-    int total = 0;
     int j = 0;
     int credordebt;
     string *events = new string[*m];
@@ -176,135 +179,7 @@ int main()
     }
 
     // "ЗАПЛАНИРОВАННЫЕ РАСХОДЫ"
-    if (fileExists(generalName + ".txt"))
-    {
-        Set65001();
-        cout << "   ЗАПЛАНИРОВАННЫЕ РАСХОДЫ:";
-
-        int k{};
-        int q{};
-        int summa{};
-        string *buffer0 = new string;
-        string *buffer1 = new string{};
-
-        // если надо обновить ежемесячные расходы
-        if (getValueFromFile("*", "Log.txt", 0) < month)
-        {
-            // извлечение текста из текстовика
-            string *dataFromFileArray = new string[*n];
-            ifstream dataReadFile;
-            dataReadFile.open(fs::path(dCluthcPath).replace_filename(generalName + "Log.txt"));
-            if (dataReadFile.is_open())
-            {
-                Set1251();
-                for (int i{}; dataReadFile; i++)
-                {
-                    dataReadFile >> dataFromFileArray[i];
-                    if (dataFromFileArray[i] == dataFromFileArray[i - 1])
-                        break;
-                    q++;
-                }
-                dataReadFile.close();
-                cout << "\n\n";
-            }
-            else
-            {
-                Set65001();
-                cout << "\nОшибка открытия файла dataReadFile\n\n";
-            }
-            // обновление состояний платежей
-            ofstream dataLoadFile;
-            dataLoadFile.open(fs::path(dCluthcPath).replace_filename(generalName + "Log.txt"));
-            if (dataLoadFile.is_open())
-            {
-                for (int i{}; i < q; i++)
-                {
-                    if (dataFromFileArray[i] == "|")
-                        dataLoadFile << "/ ";
-                    else
-                        dataLoadFile << dataFromFileArray[i] << " ";
-                    if (dataFromFileArray[i] == ";")
-                        dataLoadFile << "\n";
-                    if (dataFromFileArray[i] == "*")
-                    {
-                        dataLoadFile << month << " ";
-                        break;
-                    }
-                }
-                dataLoadFile.close();
-            }
-            else
-            {
-                Set65001();
-                cout << "\nОшибка открытия файла dataLoadFile\n\n";
-            }
-            delete[] dataFromFileArray;
-        }
-        // отображение запланированных расходов
-        ifstream plannedExpensesReadFile;
-        plannedExpensesReadFile.open(fs::path(dCluthcPath).replace_filename(generalName + "Log.txt"));
-        if (plannedExpensesReadFile.is_open())
-        {
-            for (int i{}; plannedExpensesReadFile; i++)
-            {
-                plannedExpensesReadFile >> *buffer0;
-                if (*buffer0 == "/")
-                {
-                    bool flag = true;
-                    cout << "\n   ";
-                    plannedExpensesReadFile >> *buffer0;
-                    Set1251();
-                    cout << *buffer0;
-                    plannedExpensesReadFile >> *buffer0;
-                    cout << " " << *buffer0;
-                    plannedExpensesReadFile >> *buffer0;
-                    summa += stoi(*buffer0);
-                    cout << " ";
-                    dividingPoints(stoi(*buffer0));
-                    cout << " ";
-                    plannedExpensesReadFile >> *buffer0;
-                    k++;
-                    if (*buffer0 == "every" && flag == true)
-                    {
-                        cout << "(ежемес.)";
-                        flag = false;
-                    }
-                    if (*buffer0 == "one" && flag == true)
-                    {
-                        cout << "(разовый)";
-                        flag = false;
-                    }
-                }
-            }
-            if (k > 1)
-            {
-                cout << "\n\n     Сумма расходов = ";
-                dividingPoints(summa);
-                cout << ".\n\n     Остаток за вычетом расходов: ";
-                dividingPoints(total - summa);
-                negativeValue(total - summa);
-                cout << ".\n\n     Остаток на конец месяца при соблюдении баланса: ";
-                dividingPoints(balancePayday - summa);
-                negativeValue(balancePayday - summa);
-            }
-        }
-        else
-        {
-            Set65001();
-            cout << " пока отсутствуют.";
-        }
-        plannedExpensesReadFile.close();
-
-        Set65001();
-        if (k == 0)
-        {
-            cout << " Создать их (нажмите 5)";
-        }
-
-        cout << "\n\n\n";
-        delete buffer0;
-        delete buffer1;
-    }
+    showPlannedExpenses();
 
     // ИНДЕКСАЦИЯ СОБЫТИЙ
     ifstream file3;
@@ -375,8 +250,8 @@ int main()
                     else
                     {
                         // Возвращаем введенную строку обратно в поток
-                        for (int idx = preCheckNumb.length() - 1; idx >= 0; idx--)
-                            cin.putback(preCheckNumb[idx]);
+                        for (int index = preCheckNumb.length() - 1; index >= 0; index--)
+                            cin.putback(preCheckNumb[index]);
                         newData[i] = checkNumber();
                     }
                     cout << "\n";
@@ -468,7 +343,9 @@ int main()
                     Set65001();
                     for (int i = 1; i <= j; i++)
                     { // ввод новых данных о балансах
-                        cout << "   " << events[i] << " = " << remainds[k] << "\n";
+                        cout << "   " << events[i] << " = ";
+                        dividingPoints(stoi(remainds[k]));
+                        cout << "\n";
                         k--;
                     }
                     cout << "\n\n";
@@ -839,14 +716,21 @@ int main()
                 time_t y = mktime(&c);
 
                 if (x != (time_t)(-1) && y != (time_t)(-1))
+                {
                     Set65001();
-                dividingPoints(floor(total / (difftime(y, x) / (60 * 60 * 24))));
-                cout << " руб./день.\n\n";
+                    dividingPoints(floor(total / (difftime(y, x) / (60 * 60 * 24))));
+                    cout << " руб./день.\n\n";
+                }
 
                 if (x != (time_t)(-1) && y != (time_t)(-1))
+                {
                     answ = total - (difftime(y, x) / (60 * 60 * 24)) * quest;
-                cout << "  Баланс к этому дню (лимит "
-                     << quest << " руб) = " << answ << " руб.\n\n\n";
+                    cout << "  Баланс к этому дню (лимит ";
+                    dividingPoints(quest);
+                    cout << " руб) = ";
+                    dividingPoints(answ);
+                    cout << " руб.\n\n\n";
+                }
             }
 
             // ФУНКЦИЯ "Изменить день ЗП, лимит дня, лимит карты"
@@ -1483,11 +1367,11 @@ void totally(int total, int payday)
 void changeCardValue(string *events, int j, bool plusminus, int payday)
 {
     int k{};
-    const int *n = new const int{3210};
+    int total{};
     int quest{};
     int value{};
     int newValue{};
-    int total{};
+    const int *n = new const int{3210};
     string *buff = new string[*n];
     string *buff0 = new string[*n];
     string *buffer = new string[*n];
@@ -1872,6 +1756,140 @@ void manual()
     }
 }
 
+// ФУНКЦИЯ ПОКАЗА ЗАПЛАНИРОВАННЫХ РАСХОДОВ
+void showPlannedExpenses()
+{
+    if (fileExists(generalName + ".txt"))
+    {
+        Set65001();
+        cout << "   ЗАПЛАНИРОВАННЫЕ РАСХОДЫ:";
+
+        int k{};
+        int q{};
+        int summa{};
+        string *buffer0 = new string;
+        string *buffer1 = new string{};
+
+        // если надо обновить ежемесячные расходы
+        if (getValueFromFile("*", "Log.txt", 0) < month)
+        {
+            // извлечение текста из текстовика
+            string *dataFromFileArray = new string[*n];
+            ifstream dataReadFile;
+            dataReadFile.open(fs::path(dCluthcPath).replace_filename(generalName + "Log.txt"));
+            if (dataReadFile.is_open())
+            {
+                Set1251();
+                for (int i{}; dataReadFile; i++)
+                {
+                    dataReadFile >> dataFromFileArray[i];
+                    if (dataFromFileArray[i] == dataFromFileArray[i - 1])
+                        break;
+                    q++;
+                }
+                dataReadFile.close();
+                cout << "\n\n";
+            }
+            else
+            {
+                Set65001();
+                cout << "\nОшибка открытия файла dataReadFile\n\n";
+            }
+            // обновление состояний платежей
+            ofstream dataLoadFile;
+            dataLoadFile.open(fs::path(dCluthcPath).replace_filename(generalName + "Log.txt"));
+            if (dataLoadFile.is_open())
+            {
+                for (int i{}; i < q; i++)
+                {
+                    if (dataFromFileArray[i] == "|")
+                        dataLoadFile << "/ ";
+                    else
+                        dataLoadFile << dataFromFileArray[i] << " ";
+                    if (dataFromFileArray[i] == ";")
+                        dataLoadFile << "\n";
+                    if (dataFromFileArray[i] == "*")
+                    {
+                        dataLoadFile << month << " ";
+                        break;
+                    }
+                }
+                dataLoadFile.close();
+            }
+            else
+            {
+                Set65001();
+                cout << "\nОшибка открытия файла dataLoadFile\n\n";
+            }
+            delete[] dataFromFileArray;
+        }
+        // отображение запланированных расходов
+        ifstream plannedExpensesReadFile;
+        plannedExpensesReadFile.open(fs::path(dCluthcPath).replace_filename(generalName + "Log.txt"));
+        if (plannedExpensesReadFile.is_open())
+        {
+            for (int i{}; plannedExpensesReadFile; i++)
+            {
+                plannedExpensesReadFile >> *buffer0;
+                if (*buffer0 == "/")
+                {
+                    bool flag = true;
+                    cout << "\n   ";
+                    plannedExpensesReadFile >> *buffer0;
+                    Set1251();
+                    cout << *buffer0;
+                    plannedExpensesReadFile >> *buffer0;
+                    cout << " " << *buffer0;
+                    plannedExpensesReadFile >> *buffer0;
+                    summa += stoi(*buffer0);
+                    cout << " ";
+                    dividingPoints(stoi(*buffer0));
+                    cout << " ";
+                    plannedExpensesReadFile >> *buffer0;
+                    k++;
+                    if (*buffer0 == "every" && flag == true)
+                    {
+                        cout << "(ежемес.)";
+                        flag = false;
+                    }
+                    if (*buffer0 == "one" && flag == true)
+                    {
+                        cout << "(разовый)";
+                        flag = false;
+                    }
+                }
+            }
+            if (k > 1)
+            {
+                cout << "\n\n     Сумма расходов = ";
+                dividingPoints(summa);
+                cout << ".\n\n     Остаток за вычетом расходов: ";
+                dividingPoints(total - summa);
+                negativeValue(total - summa);
+                cout << ".\n\n     Остаток на конец месяца при соблюдении баланса: ";
+                dividingPoints(balancePayday - summa);
+                negativeValue(balancePayday - summa);
+            }
+        }
+        else
+        {
+            Set65001();
+            cout << " пока отсутствуют.";
+        }
+        plannedExpensesReadFile.close();
+
+        Set65001();
+        if (k == 0)
+        {
+            cout << " Создать их (нажмите 5)";
+        }
+
+        cout << "\n\n\n";
+        delete buffer0;
+        delete buffer1;
+    }
+}
+
 // ФУНКЦИЯ "ЗАПЛАНИРОВАННЫЕ РАСХОДЫ"
 void plannedExpenses()
 {
@@ -1976,6 +1994,8 @@ void plannedExpenses()
                 cout << "\nОшибка открытия файла plExADDfile\n\n";
             }
         }
+        cout << "\n\n";
+        showPlannedExpenses();
     }
 
     if (quest == 2)
@@ -2049,6 +2069,8 @@ void plannedExpenses()
         cout << " удален.\n  Чтобы вычесть сумму с одной из карт нажмите (3).\n";
 
         delete[] bufArDeleteEvent;
+        cout << "\n\n";
+        showPlannedExpenses();
     }
 
     delete buffer1;
