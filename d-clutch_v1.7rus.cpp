@@ -32,6 +32,7 @@ void autorun(int);
 void manual();
 int checkDigit();
 int checkNumber();
+int checkNumber(int);
 int getValueFromFile(string, string, int);
 bool checkStringContains(const string &);
 bool fileExists(const string &);
@@ -77,7 +78,12 @@ int main()
     cout << "\n ---        d-clutch        ---\n";
 
     /// 1. Оптимизировать код (вынести в функцию remainds -- total)
-    /// 2. Неправильно считает баланс по лимиту и экономи/расход, если считать сразу
+    /// 2. Не вносит изменения, если добавлять расход/доход, без полного обновления
+    /// 3. Синхронизировать ПОДСЧЁТ ОБЩЕГО ОСТАТКА с анг.
+    // ПОВТОР СУММЫ на карте, чтобы не вводить, если она не изменилась
+    // ПОВТОР ВЫВОДА новых значений (в двух местах)
+    /// 4. Сделать повторный вывод запланированных расходов.
+    /// 5. Добавить разделительные точки в повторный вывод.
 
     /// остановился на: 
 
@@ -161,7 +167,8 @@ int main()
 
     payday = getValueFromFile("**", ".txt", payday);
 
-    { // подсчёт общего остатка
+    // ПОДСЧЁТ ОБЩЕГО ОСТАТКА
+    {
         for (int i = 1; i <= j; i++)
             total += atoi(remainds[i].c_str());
         if (j > 0)
@@ -353,17 +360,30 @@ int main()
                 string *buff = new string[*n];
                 string *buffer = new string[*n];
                 string buf{};
+                string preCheckNumb;
                 total = 0;
+                int k = j;
 
                 Set65001();
+                cout << "\n   Если сумма на карте прежняя впишите \".\" или \",\"\n\n";
                 for (int i = 1; i <= j; i++)
                 { // ввод новых данных о балансах
-                    cout << events[i] << " = ";
-                    newData[i] = checkNumber();
+                    cout << "   " << events[i] << " = ";
+                    cin >> preCheckNumb;
+                    if (preCheckNumb == "." || preCheckNumb == ",")
+                        newData[i] = stoi(remainds[k]);
+                    else
+                    {
+                        // Возвращаем введенную строку обратно в поток
+                        for (int idx = preCheckNumb.length() - 1; idx >= 0; idx--)
+                            cin.putback(preCheckNumb[idx]);
+                        newData[i] = checkNumber();
+                    }
                     cout << "\n";
+                    k--;
                 }
 
-                for (int i = 1; i <= j; i++) // подсчёт общего остатка
+                for (int i = 1; i <= j; i++) // ПОДСЧЁТ ОБЩЕГО ОСТАТКА
                     total += newData[i];
                 // добавление заголовка о дате и тотале в buff
 
@@ -437,12 +457,21 @@ int main()
                     }
                     file6.close();
 
-                    // подсчёт общего остатка
+                    // ПОДСЧЁТ ОБЩЕГО ОСТАТКА
                     total = 0;
                     for (int i = 1; i <= j; i++)
                         total += newData[i];
                     if (j > 0)
                         totally(total, payday);
+
+                    k = j;
+                    Set65001();
+                    for (int i = 1; i <= j; i++)
+                    { // ввод новых данных о балансах
+                        cout << "   " << events[i] << " = " << remainds[k] << "\n";
+                        k--;
+                    }
+                    cout << "\n\n";
                 }
                 // если обновление данных происходило НЕ сегодня, то файл ДОписывается
                 else
@@ -480,12 +509,21 @@ int main()
                     }
                     file70.close();
 
-                    // подсчёт общего остатка
+                    // ПОДСЧЁТ ОБЩЕГО ОСТАТКА
                     total = 0;
                     for (int i = 1; i <= j; i++)
                         total += newData[i];
                     if (j > 0)
                         totally(total, payday);
+
+                    k = j;
+                    Set65001();
+                    for (int i = 1; i <= j; i++)
+                    { // ввод новых данных о балансах
+                        cout << "   " << events[i] << " = " << remainds[k] << "\n";
+                        k--;
+                    }
+                    cout << "\n\n";
                 }
                 delete[] buff;
                 delete[] buffer;
@@ -638,7 +676,8 @@ int main()
                         if (buffer0 == ";")
                             break;
                     }
-                    for (int i{}; i < k; i++) // подсчёт общего остатка
+                    // ПОДСЧЁТ ОБЩЕГО ОСТАТКА
+                    for (int i{}; i < k; i++)
                         total += stoi(remainds[i]);
                     name2.close();
                 }
@@ -648,7 +687,14 @@ int main()
                     cout << "\nОшибка открытия файла name2\n\n";
                 }
 
-                totally(total, payday);
+                // ПОДСЧЁТ ОБЩЕГО ОСТАТКА
+                {
+                    total = 0;
+                    for (int i = 1; i <= j; i++)
+                        total += atoi(remainds[i].c_str());
+                    if (j > 0)
+                        totally(total, payday);
+                }
                 j = 1;
 
                 delete[] buff;
@@ -722,7 +768,7 @@ int main()
                             if (buffer0 == ";")
                                 break;
                         }
-                        // подсчёт общего остатка
+                        // ПОДСЧЁТ ОБЩЕГО ОСТАТКА
                         for (int i{}; i < k; i++)
                             total += atoi(remainds[i].c_str());
                         delfiles2.close();
@@ -733,7 +779,13 @@ int main()
                         cout << "\nОшибка открытия файла delfiles2\n\n";
                     }
 
-                    totally(total, payday);
+                    { // ПОДСЧЁТ ОБЩЕГО ОСТАТКА
+                        total = 0;
+                        for (int i = 1; i <= j; i++)
+                            total += atoi(remainds[i].c_str());
+                        if (j > 0)
+                            totally(total, payday);
+                    }
                     j = 1;
 
                     delete[] buff;
@@ -780,7 +832,7 @@ int main()
                     }
                     onNextMonth.close();
                 }
-                for (int i = 1; i <= j; i++) // подсчёт общего остатка
+                for (int i = 1; i <= j; i++) // ПОДСЧЁТ ОБЩЕГО ОСТАТКА
                     total += atoi(remainds[i].c_str());
 
                 struct tm c = {0, 0, 0, payday, month + 1, 101, 0, 0, 0}; // пересчёт на дни
@@ -894,6 +946,14 @@ int main()
                             cout << "\nОшибка открытия файла limit3\n\n";
                         }
                     }
+                    // ПОДСЧЁТ ОБЩЕГО ОСТАТКА
+                    {
+                        total = 0;
+                        for (int i = 1; i <= j; i++)
+                            total += atoi(remainds[i].c_str());
+                        if (j > 0)
+                            totally(total, payday);
+                    }
                 }
                 delete buffer0;
                 delete[] buffer;
@@ -979,6 +1039,14 @@ int main()
                             Set65001();
                             cout << "\nОшибка открытия файла limit3\n\n";
                         }
+                    }
+                    // ПОДСЧЁТ ОБЩЕГО ОСТАТКА
+                    {
+                        total = 0;
+                        for (int i = 1; i <= j; i++)
+                            total += atoi(remainds[i].c_str());
+                        if (j > 0)
+                            totally(total, questPayday);
                     }
                 }
                 delete buffer1;
@@ -1132,7 +1200,7 @@ int main()
 
             // ПОВТОРНЫЙ ВЫЗОВ ТОТАЛА
             else if (i > 0 && question == 12)
-            { // подсчёт общего остатка
+            { // ПОДСЧЁТ ОБЩЕГО ОСТАТКА
                 if (j > 0)
                     totally(total, payday);
             }
@@ -1488,7 +1556,7 @@ void changeCardValue(string *events, int j, bool plusminus, int payday)
             dividingPoints(newValue);
             cout << "\n\n";
             for (int i = 1; i <= j; i++)
-            { // подсчёт общего остатка
+            { // ПОДСЧЁТ ОБЩЕГО ОСТАТКА
                 total += atoi(remainds[i].c_str());
             }
             // считывание даты в buff0
@@ -1557,7 +1625,13 @@ void changeCardValue(string *events, int j, bool plusminus, int payday)
                 changeCardFile02.close();
             }
         }
-        totally(total, payday);
+        { // ПОДСЧЁТ ОБЩЕГО ОСТАТКА
+            total = 0;
+            for (int i = 1; i <= j; i++)
+                total += atoi(remainds[i].c_str());
+            if (j > 0)
+                totally(total, payday);
+        }
     }
     delete[] buff;
     delete[] buff0;
@@ -1626,6 +1700,27 @@ int checkDigit()
 int checkNumber()
 {
     int number;
+    while (true)
+    {
+        cin >> number;
+        if (cin.fail())
+        { // Если ввод не удался (например, ввели буквы)
+            Set65001();
+            cout << "Введите число.\n";
+            cin.clear();                                                     // Сброс флага ошибки
+            cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n'); // Очистка буфера
+        }
+        else
+        {
+            cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n'); // Удаляем лишние символы
+            return number;
+        }
+    }
+}
+
+// ПРОВЕРКА ВВЕДЁННОЙ ЦИФРЫ
+int checkNumber(int number)
+{
     while (true)
     {
         cin >> number;
